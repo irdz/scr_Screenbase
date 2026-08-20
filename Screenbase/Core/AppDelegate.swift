@@ -97,7 +97,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         return true
     }
 
-    /// Unit tests and SwiftUI previews skip Firebase so placeholder GoogleService plists (SCR-33) don't abort launch.
+    /// Unit tests and SwiftUI previews skip Firebase so they can launch with mock managers.
     private static var shouldUseMockDependencies: Bool {
         let environment = ProcessInfo.processInfo.environment
         return environment["XCTestConfigurationFilePath"] != nil

@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>API_KEY</key>
-	<string>AIzaSyREPLACE-FROM-SCR-33-DEV-KEY</string>
+	<string>AIzaSyDSOhK5hd3C0HuKqQaLfjzJVZqSizD0P2k</string>
 	<key>GCM_SENDER_ID</key>
-	<string>000000000000</string>
+	<string>455506000409</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:000000000000:ios:0000000000000000000001</string>
+	<string>1:455506000409:ios:1f45b451209c129a270888</string>
 </dict>
 </plist>
