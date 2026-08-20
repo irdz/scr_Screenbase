@@ -1,0 +1,13 @@
+# Xcode per-user data
+Screenbase.xcodeproj/project.xcworkspace/xcuserdata/
+Screenbase.xcodeproj/xcuserdata/
+
+# Cursor IDE
+.cursor/
+
+# Swift Package Manager
+**/.build/
+**/.swiftpm/
+
+build
+.DS_Store

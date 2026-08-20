@@ -6,6 +6,13 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		62A100053036EAA100281050 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 62A100023036EAA100281050 /* FirebaseAuth */; };
+		62A100063036EAA100281050 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 62A100033036EAA100281050 /* FirebaseFirestore */; };
+		62A100073036EAA100281050 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 62A100043036EAA100281050 /* FirebaseAnalytics */; };
+		62A1000A3036EAA100281050 /* PhosphorSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 62A100093036EAA100281050 /* PhosphorSwift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		622009B63036E99A00281050 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -29,9 +36,22 @@
 		622009BF3036E99A00281050 /* ScreenbaseUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ScreenbaseUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		62A1000B3036EAA100281050 /* Exceptions for "Screenbase" folder in "Screenbase" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 622009A53036E99900281050 /* Screenbase */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		622009A83036E99900281050 /* Screenbase */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				62A1000B3036EAA100281050 /* Exceptions for "Screenbase" folder in "Screenbase" target */,
+			);
 			path = Screenbase;
 			sourceTree = "<group>";
 		};
@@ -52,6 +72,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				62A100053036EAA100281050 /* FirebaseAuth in Frameworks */,
+				62A100063036EAA100281050 /* FirebaseFirestore in Frameworks */,
+				62A100073036EAA100281050 /* FirebaseAnalytics in Frameworks */,
+				62A1000A3036EAA100281050 /* PhosphorSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +136,10 @@
 			);
 			name = Screenbase;
 			packageProductDependencies = (
+				62A100023036EAA100281050 /* FirebaseAuth */,
+				62A100033036EAA100281050 /* FirebaseFirestore */,
+				62A100043036EAA100281050 /* FirebaseAnalytics */,
+				62A100093036EAA100281050 /* PhosphorSwift */,
 			);
 			productName = Screenbase;
 			productReference = 622009A63036E99900281050 /* Screenbase.app */;
@@ -195,6 +223,10 @@
 			);
 			mainGroup = 6220099D3036E99900281050;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				62A100013036EAA100281050 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				62A100083036EAA100281050 /* XCRemoteSwiftPackageReference "swift" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 622009A73036E99900281050 /* Products */;
 			projectDirPath = "";
@@ -400,6 +432,8 @@
 				DEVELOPMENT_TEAM = J7D9ZQDSGC;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Screenbase/Info.plist;
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Screenbase finds screenshots already in Photos so you can annotate and organize them. Originals stay in Photos and are never uploaded.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -413,6 +447,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.getscreenbase.Screenbase;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG DEV $(inherited)";
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -432,6 +467,8 @@
 				DEVELOPMENT_TEAM = J7D9ZQDSGC;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Screenbase/Info.plist;
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Screenbase finds screenshots already in Photos so you can annotate and organize them. Originals stay in Photos and are never uploaded.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -578,6 +615,48 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		62A100013036EAA100281050 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.12.1;
+			};
+		};
+		62A100083036EAA100281050 /* XCRemoteSwiftPackageReference "swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/phosphor-icons/swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		62A100023036EAA100281050 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 62A100013036EAA100281050 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		62A100033036EAA100281050 /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 62A100013036EAA100281050 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+		62A100043036EAA100281050 /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 62A100013036EAA100281050 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+		62A100093036EAA100281050 /* PhosphorSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 62A100083036EAA100281050 /* XCRemoteSwiftPackageReference "swift" */;
+			productName = PhosphorSwift;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 6220099E3036E99900281050 /* Project object */;
 }
