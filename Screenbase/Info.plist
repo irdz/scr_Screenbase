@@ -4,7 +4,8 @@
 <dict>
 	<key>UIAppFonts</key>
 	<array>
-		<string>NunitoSans.ttf</string>
+		<string>NunitoSans-Variable.ttf</string>
+		<string>NunitoSans-Italic-Variable.ttf</string>
 	</array>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Screenbase finds screenshots already in Photos so you can annotate and organize them. Originals stay in Photos and are never uploaded.</string>
