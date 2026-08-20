@@ -80,7 +80,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         _: UIApplication,
         didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
-        if ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil {
+        if Self.shouldUseMockDependencies {
             dependencies = .mock
             return true
         }
@@ -95,5 +95,12 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         configuration.configureFirebase()
         dependencies = AppDependencies(configuration: configuration)
         return true
+    }
+
+    /// Unit tests and SwiftUI previews skip Firebase so placeholder GoogleService plists (SCR-33) don't abort launch.
+    private static var shouldUseMockDependencies: Bool {
+        let environment = ProcessInfo.processInfo.environment
+        return environment["XCTestConfigurationFilePath"] != nil
+            || environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
     }
 }

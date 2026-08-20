@@ -1,10 +1,9 @@
 import Foundation
-import Testing
 @testable import Screenbase
+import Testing
 
 @Suite("AppState Tests")
 struct AppState_Tests {
-
     @Test("Update view state persists showMainApp")
     @MainActor
     func updateViewStatePersists() {

@@ -1,9 +1,8 @@
-import Testing
 @testable import Screenbase
+import Testing
 
 @Suite("UserManager Tests")
 struct UserManager_Tests {
-
     @Test("Login stores current user from auth")
     @MainActor
     func loginStoresCurrentUser() async throws {

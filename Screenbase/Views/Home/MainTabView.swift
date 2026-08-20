@@ -7,35 +7,56 @@ import PhosphorSwift
 import SwiftUI
 
 struct MainTabView: View {
+    @State private var selectedTab: Destination = .library
+
+    enum Destination: Hashable {
+        case library
+        case search
+        case collections
+        case settings
+    }
+
     var body: some View {
-        TabView {
-            LibraryView()
-                .tabItem {
-                    Ph.squaresFour.bold
-                        .frame(width: 24, height: 24)
+        TabView(selection: $selectedTab) {
+            Tab(value: .library) {
+                LibraryView()
+            } label: {
+                Label {
                     Text("Library")
+                } icon: {
+                    Ph.squaresFour.tabBarBold
                 }
+            }
 
-            SearchView()
-                .tabItem {
-                    Ph.magnifyingGlass.bold
-                        .frame(width: 24, height: 24)
+            Tab(value: .search) {
+                SearchView()
+            } label: {
+                Label {
                     Text("Search")
+                } icon: {
+                    Ph.magnifyingGlass.tabBarBold
                 }
+            }
 
-            CollectionsView()
-                .tabItem {
-                    Ph.folderSimple.bold
-                        .frame(width: 24, height: 24)
+            Tab(value: .collections) {
+                CollectionsView()
+            } label: {
+                Label {
                     Text("Collections")
+                } icon: {
+                    Ph.folderSimple.tabBarBold
                 }
+            }
 
-            SettingsView()
-                .tabItem {
-                    Ph.gearSix.bold
-                        .frame(width: 24, height: 24)
+            Tab(value: .settings) {
+                SettingsView()
+            } label: {
+                Label {
                     Text("Settings")
+                } icon: {
+                    Ph.gearSix.tabBarBold
                 }
+            }
         }
         .tint(ScreenbaseColors.ink)
     }
@@ -43,4 +64,7 @@ struct MainTabView: View {
 
 #Preview {
     MainTabView()
+        .environment(AuthManager(service: AuthServiceMock()))
+        .environment(UserManager(services: MockUserServices()))
+        .environment(PhotosManager(service: MockPhotosService(status: .authorized, screenshotCount: 24)))
 }

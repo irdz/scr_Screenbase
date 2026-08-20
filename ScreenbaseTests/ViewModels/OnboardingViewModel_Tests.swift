@@ -1,9 +1,8 @@
-import Testing
 @testable import Screenbase
+import Testing
 
 @Suite("OnboardingViewModel Tests")
 struct OnboardingViewModel_Tests {
-
     @Test("Welcome continue advances to photos permission")
     @MainActor
     func continueFromWelcomeAdvancesToPhotos() {

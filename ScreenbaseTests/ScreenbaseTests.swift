@@ -1,5 +1,4 @@
-import Testing
 @testable import Screenbase
+import Testing
 
-struct ScreenbaseTests {
-}
+struct ScreenbaseTests {}
