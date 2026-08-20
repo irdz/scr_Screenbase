@@ -8,6 +8,7 @@ import SwiftUI
 
 struct MainTabView: View {
     @State private var selectedTab: Destination = .library
+    @State private var searchText = ""
 
     enum Destination: Hashable {
         case library
@@ -28,16 +29,6 @@ struct MainTabView: View {
                 }
             }
 
-            Tab(value: .search) {
-                SearchView()
-            } label: {
-                Label {
-                    Text("Search")
-                } icon: {
-                    Ph.magnifyingGlass.tabBarBold
-                }
-            }
-
             Tab(value: .collections) {
                 CollectionsView()
             } label: {
@@ -55,6 +46,17 @@ struct MainTabView: View {
                     Text("Settings")
                 } icon: {
                     Ph.gearSix.tabBarBold
+                }
+            }
+
+            Tab(value: .search, role: .search) {
+                SearchView(query: searchText)
+                    .searchable(text: $searchText, prompt: "Screenbase")
+            } label: {
+                Label {
+                    Text("Search")
+                } icon: {
+                    Ph.magnifyingGlass.tabBarBold
                 }
             }
         }
