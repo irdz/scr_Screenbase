@@ -27,11 +27,10 @@ struct SearchView: View {
                     VStack(spacing: 16) {
                         Ph.magnifyingGlass.bold
                             .color(ScreenbaseColors.ink)
-                            .frame(width: 28, height: 28)
-
-                        Text("Search")
-                            .displayFont(size: 28)
-                            .foregroundStyle(ScreenbaseColors.ink)
+                            .frame(
+                                width: ScreenbaseMetrics.emptyStateIconSize,
+                                height: ScreenbaseMetrics.emptyStateIconSize
+                            )
 
                         Text("Search across screenshot text, notes, tags, and collections.")
                             .font(.system(size: 16))
@@ -42,8 +41,7 @@ struct SearchView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
             }
-            .background(ScreenbaseColors.background)
-            .navigationTitle("Search")
+            .screenTitle("Search")
             .toolbar(removing: .search)
         }
     }

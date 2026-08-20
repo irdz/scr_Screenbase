@@ -23,9 +23,7 @@ struct SettingsView: View {
                 }
             }
             .scrollContentBackground(.hidden)
-            .background(ScreenbaseColors.background)
-            .navigationTitle("Settings")
-            .navigationBarTitleDisplayMode(.inline)
+            .screenTitle("Settings")
         }
     }
 }

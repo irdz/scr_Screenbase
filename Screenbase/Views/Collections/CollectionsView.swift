@@ -3,31 +3,23 @@
 //  Screenbase
 //
 
-import PhosphorSwift
 import SwiftUI
 
 struct CollectionsView: View {
+    private let columns = [
+        GridItem(.flexible(), spacing: ScreenbaseMetrics.collectionGridSpacing),
+        GridItem(.flexible(), spacing: ScreenbaseMetrics.collectionGridSpacing)
+    ]
+
     var body: some View {
         NavigationStack {
-            VStack(spacing: 16) {
-                Ph.folderSimple.bold
-                    .color(ScreenbaseColors.ink)
-                    .frame(width: 28, height: 28)
-
-                Text("Collections")
-                    .displayFont(size: 28)
-                    .foregroundStyle(ScreenbaseColors.ink)
-
-                Text("Group screenshots into lightweight collections.")
-                    .font(.system(size: 16))
-                    .foregroundStyle(ScreenbaseColors.gray)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 32)
+            ScrollView {
+                LazyVGrid(columns: columns, spacing: ScreenbaseMetrics.collectionGridSpacing) {
+                    NewCollectionTileView()
+                }
+                .padding(.horizontal, ScreenbaseMetrics.edgePadding)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(ScreenbaseColors.background)
-            .navigationTitle("Collections")
-            .navigationBarTitleDisplayMode(.inline)
+            .screenTitle("Collections")
         }
     }
 }
