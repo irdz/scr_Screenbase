@@ -98,9 +98,12 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
     }
 
     /// Unit tests and SwiftUI previews skip Firebase so they can launch with mock managers.
-    private static var shouldUseMockDependencies: Bool {
+    static var shouldUseMockDependencies: Bool {
         let environment = ProcessInfo.processInfo.environment
-        return environment["XCTestConfigurationFilePath"] != nil
-            || environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
+        if environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1" { return true }
+        if environment["XCTestConfigurationFilePath"] != nil { return true }
+        if environment["XCTestBundlePath"] != nil { return true }
+        // Test host injects XCTest even when Swift Testing is the runner.
+        return NSClassFromString("XCTestCase") != nil
     }
 }
