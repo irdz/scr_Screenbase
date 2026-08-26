@@ -14,4 +14,5 @@ enum ScreenbaseMetrics {
     static let screenTitleSize: CGFloat = 40
     static let emptyStateIconSize: CGFloat = 64
     static let collectionGridSpacing: CGFloat = 12
+    static let settingsRowIconSize: CGFloat = 22
 }
