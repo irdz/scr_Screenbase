@@ -1,14 +1,14 @@
-@testable import Screenbase
 import Foundation
+@testable import Screenbase
 import Testing
 
 @Suite("SettingsViewModel Tests")
 struct SettingsViewModel_Tests {
     @Test("Unset defaults match launch values")
     @MainActor
-    func unsetDefaultsMatchLaunchValues() {
+    func unsetDefaultsMatchLaunchValues() throws {
         let suite = "screenbase.settings.tests.\(UUID().uuidString)"
-        let defaults = UserDefaults(suiteName: suite)!
+        let defaults = try #require(UserDefaults(suiteName: suite))
         defer { defaults.removePersistentDomain(forName: suite) }
 
         let sut = SettingsViewModel(defaults: defaults)
@@ -28,9 +28,9 @@ struct SettingsViewModel_Tests {
 
     @Test("Toggles persist across launches")
     @MainActor
-    func togglesPersistAcrossLaunches() {
+    func togglesPersistAcrossLaunches() throws {
         let suite = "screenbase.settings.tests.\(UUID().uuidString)"
-        let defaults = UserDefaults(suiteName: suite)!
+        let defaults = try #require(UserDefaults(suiteName: suite))
         defer { defaults.removePersistentDomain(forName: suite) }
 
         let sut = SettingsViewModel(defaults: defaults)

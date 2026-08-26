@@ -9,7 +9,7 @@ import SwiftUI
 struct SettingsRowView: View {
     var icon: Ph
     var title: String
-    var value: String? = nil
+    var value: String?
 
     var body: some View {
         HStack(spacing: 12) {
