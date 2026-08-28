@@ -16,15 +16,10 @@ struct AppearanceSettingsView: View {
                 }
             }
             .pickerStyle(.inline)
-            .listRowBackground(ScreenbaseColors.elevated)
+            .screenbaseListRow()
         }
-        .listStyle(.insetGrouped)
-        .scrollContentBackground(.hidden)
-        .background(ScreenbaseColors.background)
-        .navigationTitle("Appearance")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar(.visible, for: .navigationBar)
-        .tint(ScreenbaseColors.ink)
+        .screenbaseListStyle()
+        .pushedScreen(title: "Appearance")
     }
 }
 

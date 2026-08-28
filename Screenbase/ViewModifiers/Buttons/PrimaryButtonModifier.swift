@@ -22,3 +22,10 @@ extension View {
         modifier(PrimaryButtonModifier())
     }
 }
+
+#Preview {
+    Button("Continue") {}
+        .primaryButtonStyle()
+        .padding()
+        .screenbaseBackground()
+}

@@ -20,7 +20,7 @@ struct ScreenTitleModifier: ViewModifier {
             content
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(ScreenbaseColors.background)
+        .screenbaseBackground()
         .toolbar(.hidden, for: .navigationBar)
     }
 }

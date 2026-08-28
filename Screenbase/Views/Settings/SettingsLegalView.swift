@@ -13,23 +13,18 @@ struct SettingsLegalView: View {
                 Link(destination: url) {
                     SettingsRowView(icon: .fileText, title: "Privacy Policy")
                 }
-                .listRowBackground(ScreenbaseColors.elevated)
+                .screenbaseListRow()
             }
 
             if let url = URL(string: Constants.termsOfUseURL) {
                 Link(destination: url) {
                     SettingsRowView(icon: .fileText, title: "Terms")
                 }
-                .listRowBackground(ScreenbaseColors.elevated)
+                .screenbaseListRow()
             }
         }
-        .listStyle(.insetGrouped)
-        .scrollContentBackground(.hidden)
-        .background(ScreenbaseColors.background)
-        .navigationTitle("Privacy Policy / Terms")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar(.visible, for: .navigationBar)
-        .tint(ScreenbaseColors.ink)
+        .screenbaseListStyle()
+        .pushedScreen(title: "Privacy Policy / Terms")
     }
 }
 

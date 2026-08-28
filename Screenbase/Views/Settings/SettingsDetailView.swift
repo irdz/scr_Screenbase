@@ -17,10 +17,7 @@ struct SettingsDetailView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(ScreenbaseMetrics.edgePadding)
         }
-        .background(ScreenbaseColors.background)
-        .navigationTitle(title)
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar(.visible, for: .navigationBar)
+        .pushedScreen(title: title)
     }
 }
 

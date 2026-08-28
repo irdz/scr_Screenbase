@@ -25,7 +25,7 @@ struct MainTabView: View {
                 Label {
                     Text("Library")
                 } icon: {
-                    Ph.squaresFour.tabBarBold
+                    Ph.squaresFour.tabBarImage(isSelected: selectedTab == .library)
                 }
             }
 
@@ -35,7 +35,7 @@ struct MainTabView: View {
                 Label {
                     Text("Collections")
                 } icon: {
-                    Ph.folderSimple.tabBarBold
+                    Ph.folderSimple.tabBarImage(isSelected: selectedTab == .collections)
                 }
             }
 
@@ -45,7 +45,7 @@ struct MainTabView: View {
                 Label {
                     Text("Settings")
                 } icon: {
-                    Ph.gearSix.tabBarBold
+                    Ph.gearSix.tabBarImage(isSelected: selectedTab == .settings)
                 }
             }
 
@@ -56,7 +56,7 @@ struct MainTabView: View {
                 Label {
                     Text("Search")
                 } icon: {
-                    Ph.magnifyingGlass.tabBarBold
+                    Ph.magnifyingGlass.tabBarImage(isSelected: selectedTab == .search)
                 }
             }
         }
@@ -66,6 +66,7 @@ struct MainTabView: View {
 
 #Preview {
     MainTabView()
+        .environment(AppState(showMainApp: true))
         .environment(AuthManager(service: AuthServiceMock()))
         .environment(UserManager(services: MockUserServices()))
         .environment(PhotosManager(service: MockPhotosService(status: .authorized, screenshotCount: 24)))

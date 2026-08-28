@@ -10,8 +10,8 @@ import UIKit
 extension Ph {
     /// Phosphor SVGs are 256pt. Tab bars need a ~25pt template image.
     @MainActor
-    var tabBarBold: Image {
-        Image(uiImage: Self.tabBarTemplateImage(named: "\(rawValue)-bold"))
+    func tabBarImage(isSelected: Bool) -> Image {
+        Image(uiImage: Self.tabBarTemplateImage(named: "\(rawValue)-\(isSelected ? "fill" : "bold")"))
     }
 
     @MainActor
