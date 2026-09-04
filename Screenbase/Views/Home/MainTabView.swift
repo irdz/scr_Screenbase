@@ -65,10 +65,13 @@ struct MainTabView: View {
 }
 
 #Preview {
+    let metadata = MetadataManager(local: InMemoryLocalMetadataStore(), remote: MockMetadataService())
     MainTabView()
         .environment(AppState(showMainApp: true))
         .environment(AuthManager(service: AuthServiceMock()))
         .environment(UserManager(services: MockUserServices()))
         .environment(PhotosManager(service: MockPhotosService(status: .authorized, screenshotCount: 24)))
         .environment(PurchaseManager(service: MockPurchaseService()))
+        .environment(metadata)
+        .environment(ScreenshotManager(service: MockScreenshotService(), index: metadata))
 }

@@ -3,7 +3,9 @@
 //  Screenbase
 //
 
+import CoreGraphics
 import Foundation
+import UIKit
 
 enum PhotosAuthorizationStatus: Equatable, Sendable {
     case notDetermined
@@ -22,4 +24,7 @@ protocol PhotosService {
 
     func requestAuthorization() async -> PhotosAuthorizationStatus
     func screenshotCount() async throws -> Int
+
+    /// Loads a square-ish thumbnail for a Photos asset. Returns `nil` if unavailable.
+    func thumbnailImage(forAssetLocalIdentifier localIdentifier: String, targetSize: CGSize) async -> UIImage?
 }
