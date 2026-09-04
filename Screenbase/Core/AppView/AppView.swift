@@ -11,6 +11,7 @@ struct AppView: View {
     @Environment(PhotosManager.self) private var photosManager
 
     @State private var appState = AppState()
+    @AppStorage(SettingsViewModel.Keys.appearance) private var appearance = AppearancePreference.system
 
     var body: some View {
         AppViewBuilder(showMainApp: appState.showMainApp) {
@@ -19,6 +20,7 @@ struct AppView: View {
             ScreenbaseOnboardingView(appState: appState, photosManager: photosManager)
         }
         .environment(appState)
+        .preferredColorScheme(appearance.colorScheme)
         .task {
             await checkUserStatus()
         }
