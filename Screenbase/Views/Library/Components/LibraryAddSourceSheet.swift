@@ -11,7 +11,9 @@ enum LibraryAddSource: String, Identifiable, CaseIterable {
     case gallery
     case screenshotPicker
 
-    var id: String { rawValue }
+    var id: String {
+        rawValue
+    }
 
     var title: String {
         switch self {
@@ -51,7 +53,6 @@ struct LibraryAddSourceSheet: View {
         .presentationDetents([.medium])
     }
 
-    @ViewBuilder
     private func icon(for source: LibraryAddSource) -> some View {
         Group {
             switch source {

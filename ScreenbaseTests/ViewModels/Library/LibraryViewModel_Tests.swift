@@ -3,8 +3,8 @@
 //  ScreenbaseTests
 //
 
-@testable import Screenbase
 import Foundation
+@testable import Screenbase
 import Testing
 
 @Suite("LibraryViewModel Tests")
@@ -17,12 +17,12 @@ struct LibraryViewModel_Tests {
         let older = ScreenshotRecord(
             id: "old",
             assetLocalIdentifier: "old",
-            captureDate: Date(timeIntervalSince1970: 1_000)
+            captureDate: Date(timeIntervalSince1970: 1000)
         )
         let newer = ScreenshotRecord(
             id: "new",
             assetLocalIdentifier: "new",
-            captureDate: Date(timeIntervalSince1970: 2_000)
+            captureDate: Date(timeIntervalSince1970: 2000)
         )
         try await metadata.upsertScreenshot(older)
         try await metadata.upsertScreenshot(newer)

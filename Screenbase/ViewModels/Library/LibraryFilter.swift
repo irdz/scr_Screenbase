@@ -11,7 +11,9 @@ enum LibraryFilter: String, CaseIterable, Identifiable, Sendable {
     case favorites
     case recent
 
-    var id: String { rawValue }
+    var id: String {
+        rawValue
+    }
 
     var title: String {
         switch self {

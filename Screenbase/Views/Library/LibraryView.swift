@@ -18,7 +18,7 @@ struct LibraryView: View {
     private let columns = [
         GridItem(.flexible(), spacing: ScreenbaseMetrics.collectionGridSpacing),
         GridItem(.flexible(), spacing: ScreenbaseMetrics.collectionGridSpacing),
-        GridItem(.flexible(), spacing: ScreenbaseMetrics.collectionGridSpacing),
+        GridItem(.flexible(), spacing: ScreenbaseMetrics.collectionGridSpacing)
     ]
 
     var body: some View {
@@ -62,7 +62,6 @@ struct LibraryView: View {
         }
     }
 
-    @ViewBuilder
     private func libraryContent(
         viewModel: LibraryViewModel,
         thumbnailLoader: LibraryThumbnailLoader
@@ -202,7 +201,7 @@ struct LibraryView: View {
     }
 
     private func placeholderIds(count: Int) -> [String] {
-        (0 ..< count).map { "skeleton-\($0)" }
+        (0..<count).map { "skeleton-\($0)" }
     }
 
     private func handleAddSource(_ source: LibraryAddSource) {

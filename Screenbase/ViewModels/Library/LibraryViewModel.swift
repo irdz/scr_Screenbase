@@ -35,7 +35,7 @@ final class LibraryViewModel {
         if !filteredScreenshots.isEmpty {
             return .populated
         }
-        if screenshotManager.isScanning && metadataManager.screenshots.isEmpty {
+        if screenshotManager.isScanning, metadataManager.screenshots.isEmpty {
             return .loading
         }
         return .empty
@@ -57,7 +57,11 @@ final class LibraryViewModel {
         case .favorites:
             let favoriteIds = Set(
                 metadataManager.tags
-                    .filter { $0.name.compare(favoriteTagName, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedSame }
+                    .filter {
+                        $0.name
+                            .compare(favoriteTagName, options: [.caseInsensitive, .diacriticInsensitive]) ==
+                            .orderedSame
+                    }
                     .map(\.id)
             )
             return sorted.filter { record in
@@ -69,7 +73,9 @@ final class LibraryViewModel {
         }
     }
 
-    var skeletonTileCount: Int { 12 }
+    var skeletonTileCount: Int {
+        12
+    }
 
     func selectFilter(_ filter: LibraryFilter) {
         selectedFilter = filter

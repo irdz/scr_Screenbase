@@ -18,7 +18,8 @@ struct LibraryFilterChipRowView: View {
                     } label: {
                         Text(filter.title)
                             .font(ScreenbaseFonts.display(size: 14, weight: .semibold))
-                            .foregroundStyle(filter == selectedFilter ? ScreenbaseColors.background : ScreenbaseColors.ink)
+                            .foregroundStyle(filter == selectedFilter ? ScreenbaseColors.background : ScreenbaseColors
+                                .ink)
                             .padding(.horizontal, 14)
                             .padding(.vertical, 8)
                             .background(
