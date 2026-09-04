@@ -39,7 +39,7 @@ enum SettingsCopy {
     enum ScreenbasePro {
         static let title = "Screenbase Pro"
         static let message = """
-        Screenbase Pro unlocks the full library, advanced search, and stitching when it ships. You can manage or change your subscription from this screen.
+        Screenbase Pro unlocks the full library, advanced search, and stitching. Tap Screenbase Pro in Settings to subscribe or manage your plan.
         """
     }
 

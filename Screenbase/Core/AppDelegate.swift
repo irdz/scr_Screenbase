@@ -46,11 +46,18 @@ struct AppDependencies {
     let authManager: AuthManager
     let userManager: UserManager
     let photosManager: PhotosManager
+    let purchaseManager: PurchaseManager
 
-    init(authManager: AuthManager, userManager: UserManager, photosManager: PhotosManager) {
+    init(
+        authManager: AuthManager,
+        userManager: UserManager,
+        photosManager: PhotosManager,
+        purchaseManager: PurchaseManager
+    ) {
         self.authManager = authManager
         self.userManager = userManager
         self.photosManager = photosManager
+        self.purchaseManager = purchaseManager
     }
 
     init(configuration: BuildConfiguration) {
@@ -59,7 +66,8 @@ struct AppDependencies {
             self.init(
                 authManager: AuthManager(service: FirebaseAuthServiceLive()),
                 userManager: UserManager(services: ProductionUserServices()),
-                photosManager: PhotosManager(service: PhotosServiceLive())
+                photosManager: PhotosManager(service: PhotosServiceLive()),
+                purchaseManager: PurchaseManager(service: RevenueCatPurchaseService())
             )
         }
     }
@@ -68,7 +76,8 @@ struct AppDependencies {
         AppDependencies(
             authManager: AuthManager(service: AuthServiceMock()),
             userManager: UserManager(services: MockUserServices()),
-            photosManager: PhotosManager(service: MockPhotosService())
+            photosManager: PhotosManager(service: MockPhotosService()),
+            purchaseManager: PurchaseManager(service: MockPurchaseService())
         )
     }
 }
@@ -94,6 +103,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
 
         configuration.configureFirebase()
         dependencies = AppDependencies(configuration: configuration)
+        dependencies.purchaseManager.configureIfNeeded()
         return true
     }
 

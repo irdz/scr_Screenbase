@@ -9,6 +9,7 @@ struct AppView: View {
     @Environment(AuthManager.self) private var authManager
     @Environment(UserManager.self) private var userManager
     @Environment(PhotosManager.self) private var photosManager
+    @Environment(PurchaseManager.self) private var purchaseManager
 
     @State private var appState = AppState()
     @AppStorage(SettingsViewModel.Keys.appearance) private var appearance = AppearancePreference.system
@@ -22,6 +23,7 @@ struct AppView: View {
         .environment(appState)
         .preferredColorScheme(appearance.colorScheme)
         .task {
+            await purchaseManager.bootstrap()
             await checkUserStatus()
         }
     }
@@ -51,6 +53,7 @@ struct AppView: View {
         .environment(AuthManager(service: AuthServiceMock()))
         .environment(UserManager(services: MockUserServices()))
         .environment(PhotosManager(service: MockPhotosService(status: .authorized, screenshotCount: 24)))
+        .environment(PurchaseManager(service: MockPurchaseService()))
 }
 
 #Preview("Screenbase App — Onboarding") {
@@ -58,4 +61,5 @@ struct AppView: View {
         .environment(AuthManager(service: AuthServiceMock(user: nil)))
         .environment(UserManager(services: MockUserServices(user: nil)))
         .environment(PhotosManager(service: MockPhotosService()))
+        .environment(PurchaseManager(service: MockPurchaseService()))
 }

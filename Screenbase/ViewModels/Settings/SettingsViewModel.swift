@@ -58,13 +58,26 @@ final class SettingsViewModel {
     }
 
     let storageUsedDisplay: String
-    let subscriptionStatus: String
     let versionDisplay: String
 
     private let defaults: UserDefaults
+    private let subscriptionAccess: any ProSubscriptionAccess
 
-    init(defaults: UserDefaults = .standard, bundle: Bundle = .main) {
+    var isPremiumUnlocked: Bool {
+        subscriptionAccess.isPremiumUnlocked
+    }
+
+    var subscriptionStatus: String {
+        isPremiumUnlocked ? "Subscribed" : "Not subscribed"
+    }
+
+    init(
+        defaults: UserDefaults = .standard,
+        bundle: Bundle = .main,
+        subscriptionAccess: any ProSubscriptionAccess
+    ) {
         self.defaults = defaults
+        self.subscriptionAccess = subscriptionAccess
         deleteAfterImport = defaults.bool(forKey: Keys.deleteAfterImport)
         autoGroupScreenshots = Self.storedBool(defaults, key: Keys.autoGroupScreenshots, default: true)
         automaticAnalysis = Self.storedBool(defaults, key: Keys.automaticAnalysis, default: true)
@@ -78,7 +91,6 @@ final class SettingsViewModel {
         appearance = AppearancePreference(rawValue: rawAppearance) ?? .system
 
         storageUsedDisplay = "0 MB"
-        subscriptionStatus = "Not subscribed"
 
         let version = bundle.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "—"
         let build = bundle.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "—"
