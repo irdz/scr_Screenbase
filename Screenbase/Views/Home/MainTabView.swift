@@ -70,4 +70,5 @@ struct MainTabView: View {
         .environment(AuthManager(service: AuthServiceMock()))
         .environment(UserManager(services: MockUserServices()))
         .environment(PhotosManager(service: MockPhotosService(status: .authorized, screenshotCount: 24)))
+        .environment(PurchaseManager(service: MockPurchaseService()))
 }

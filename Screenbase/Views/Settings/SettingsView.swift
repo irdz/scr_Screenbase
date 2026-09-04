@@ -6,17 +6,30 @@
 import SwiftUI
 
 struct SettingsView: View {
-    @State private var viewModel = SettingsViewModel()
+    @Environment(PurchaseManager.self) private var purchaseManager
+    @State private var viewModel: SettingsViewModel?
 
     var body: some View {
-        NavigationStack {
-            SettingsListView(viewModel: viewModel)
-                .screenTitle("Settings")
+        Group {
+            if let viewModel {
+                NavigationStack {
+                    SettingsListView(viewModel: viewModel)
+                        .screenTitle("Settings")
+                }
+            } else {
+                ProgressView()
+            }
+        }
+        .task {
+            guard viewModel == nil else { return }
+            viewModel = SettingsViewModel(subscriptionAccess: purchaseManager)
         }
     }
 }
 
 #Preview {
-    SettingsView()
+    let purchaseManager = PurchaseManager(service: MockPurchaseService())
+    return SettingsView()
         .environment(AppState(showMainApp: true))
+        .environment(purchaseManager)
 }

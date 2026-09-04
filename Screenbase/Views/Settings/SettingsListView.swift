@@ -4,38 +4,45 @@
 //
 
 import PhosphorSwift
+import RevenueCatUI
 import StoreKit
 import SwiftUI
 
 struct SettingsListView: View {
     @Bindable var viewModel: SettingsViewModel
     @Environment(AppState.self) private var appState
+    @Environment(PurchaseManager.self) private var purchaseManager
     @Environment(\.requestReview) private var requestReview
     @State private var isRestoreAlertPresented = false
     @State private var isRestartOnboardingPresented = false
+    @State private var isPaywallPresented = false
+    @State private var isCustomerCenterPresented = false
+    @State private var restoreAlertMessage = "No purchases to restore."
 
     var body: some View {
         List {
             Section("Account") {
-                NavigationLink {
-                    SettingsDetailView(
-                        title: SettingsCopy.ScreenbasePro.title,
-                        message: """
-                        Status: \(viewModel.subscriptionStatus)
-
-                        \(SettingsCopy.ScreenbasePro.message)
-                        """
-                    )
+                Button {
+                    if purchaseManager.isPremiumUnlocked {
+                        isCustomerCenterPresented = true
+                    } else {
+                        isPaywallPresented = true
+                    }
                 } label: {
                     SettingsRowView(
                         icon: .crown,
                         title: "Screenbase Pro",
-                        value: viewModel.subscriptionStatus
+                        value: purchaseManager.isPremiumUnlocked ? "Subscribed" : "Not subscribed"
                     )
                 }
 
                 Button {
-                    isRestoreAlertPresented = true
+                    Task {
+                        await purchaseManager.restorePurchases()
+                        restoreAlertMessage = purchaseManager.statusMessage
+                            ?? "No purchases to restore."
+                        isRestoreAlertPresented = true
+                    }
                 } label: {
                     SettingsRowView(icon: .arrowClockwise, title: "Restore Purchases")
                 }
@@ -179,10 +186,16 @@ struct SettingsListView: View {
             .screenbaseListRow()
         }
         .screenbaseListStyle()
+        .sheet(isPresented: $isPaywallPresented) {
+            ScreenbasePaywallHost(isPresented: $isPaywallPresented)
+        }
+        .sheet(isPresented: $isCustomerCenterPresented) {
+            CustomerCenterView()
+        }
         .alert("Restore Purchases", isPresented: $isRestoreAlertPresented) {
             Button("OK", role: .cancel) {}
         } message: {
-            Text("No purchases to restore.")
+            Text(restoreAlertMessage)
         }
         .alert("Restart onboarding?", isPresented: $isRestartOnboardingPresented) {
             Button("Restart", role: .destructive) {

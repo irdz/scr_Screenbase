@@ -11,7 +11,7 @@ struct SettingsViewModel_Tests {
         let defaults = try #require(UserDefaults(suiteName: suite))
         defer { defaults.removePersistentDomain(forName: suite) }
 
-        let sut = SettingsViewModel(defaults: defaults)
+        let sut = SettingsViewModel(defaults: defaults, subscriptionAccess: ProSubscriptionAccessMock())
 
         #expect(sut.deleteAfterImport == false)
         #expect(sut.autoGroupScreenshots)
@@ -33,12 +33,12 @@ struct SettingsViewModel_Tests {
         let defaults = try #require(UserDefaults(suiteName: suite))
         defer { defaults.removePersistentDomain(forName: suite) }
 
-        let sut = SettingsViewModel(defaults: defaults)
+        let sut = SettingsViewModel(defaults: defaults, subscriptionAccess: ProSubscriptionAccessMock())
         sut.deleteAfterImport = true
         sut.includeScreenshotText = false
         sut.appearance = .dark
 
-        let reloaded = SettingsViewModel(defaults: defaults)
+        let reloaded = SettingsViewModel(defaults: defaults, subscriptionAccess: ProSubscriptionAccessMock())
 
         #expect(reloaded.deleteAfterImport)
         #expect(reloaded.includeScreenshotText == false)
