@@ -3,8 +3,8 @@
 //  ScreenbaseTests
 //
 
-@testable import Screenbase
 import Foundation
+@testable import Screenbase
 import Testing
 
 @Suite("MetadataManager Tests")

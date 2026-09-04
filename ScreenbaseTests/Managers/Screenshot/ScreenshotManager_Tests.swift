@@ -3,8 +3,8 @@
 //  ScreenbaseTests
 //
 
-@testable import Screenbase
 import Foundation
+@testable import Screenbase
 import Testing
 
 @Suite("ScreenshotManager Tests")
@@ -93,11 +93,11 @@ struct ScreenshotManager_Tests {
 
     @Test("Fetch results only contain provided screenshot assets")
     @MainActor
-    func fetchResultsOnlyContainScreenshots() async throws {
+    func fetchResultsOnlyContainScreenshots() async {
         // Given — mock service only returns screenshot-typed assets (live filters by photoScreenshot)
         let screenshots = [
             DiscoveredScreenshot(assetLocalIdentifier: "SHOT/1", creationDate: nil),
-            DiscoveredScreenshot(assetLocalIdentifier: "SHOT/2", creationDate: nil),
+            DiscoveredScreenshot(assetLocalIdentifier: "SHOT/2", creationDate: nil)
         ]
         let service = MockScreenshotService(screenshots: screenshots)
         let sut = ScreenshotManager(service: service, index: InMemoryScreenshotIndex())

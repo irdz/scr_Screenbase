@@ -31,7 +31,7 @@ final class MockScreenshotService: ScreenshotService {
     func libraryChangeEvents() -> AsyncStream<Void> {
         AsyncStream { continuation in
             changeContinuation = continuation
-            for _ in 0 ..< pendingChangeEvents {
+            for _ in 0..<pendingChangeEvents {
                 continuation.yield(())
             }
             pendingChangeEvents = 0
