@@ -192,7 +192,12 @@ final class MetadataManager {
     // MARK: - Persistence helpers
 
     private func apply(_ snapshot: MetadataStoreSnapshot) {
-        screenshots = snapshot.screenshots
+        screenshots = snapshot.screenshots.map { record in
+            guard record.id.contains("/") else { return record }
+            var fixed = record
+            fixed.id = FirestoreDocumentID.fromAssetLocalIdentifier(record.assetLocalIdentifier)
+            return fixed
+        }
         collections = snapshot.collections
         tags = snapshot.tags
     }

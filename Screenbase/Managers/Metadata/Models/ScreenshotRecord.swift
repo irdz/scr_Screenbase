@@ -38,7 +38,7 @@ struct ScreenshotRecord: Codable, Equatable, Identifiable, Sendable, Hashable {
 
     init(discovered: DiscoveredScreenshot, now: Date = Date()) {
         self.init(
-            id: discovered.assetLocalIdentifier,
+            id: FirestoreDocumentID.fromAssetLocalIdentifier(discovered.assetLocalIdentifier),
             assetLocalIdentifier: discovered.assetLocalIdentifier,
             captureDate: discovered.creationDate,
             createdAt: now,
@@ -58,7 +58,7 @@ struct ScreenshotRecord: Codable, Equatable, Identifiable, Sendable, Hashable {
     }
 
     static let mock = ScreenshotRecord(
-        id: "MOCK/ASSET-1",
+        id: FirestoreDocumentID.fromAssetLocalIdentifier("MOCK/ASSET-1"),
         assetLocalIdentifier: "MOCK/ASSET-1",
         captureDate: Date(timeIntervalSince1970: 1_700_000_000),
         annotationText: "Login flow",

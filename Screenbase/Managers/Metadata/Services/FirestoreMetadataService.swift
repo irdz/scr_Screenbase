@@ -15,27 +15,32 @@ struct FirestoreMetadataService: MetadataService {
     }
 
     func syncScreenshot(_ record: ScreenshotRecord, userId: String) async throws {
-        try screenshots(userId: userId).document(record.id).setData(from: record, merge: true)
+        try screenshots(userId: userId).document(sanitizedDocumentId(record.id)).setData(from: record, merge: true)
     }
 
     func deleteScreenshot(id: String, userId: String) async throws {
-        try await screenshots(userId: userId).document(id).delete()
+        try await screenshots(userId: userId).document(sanitizedDocumentId(id)).delete()
     }
 
     func syncCollection(_ record: CollectionRecord, userId: String) async throws {
-        try collections(userId: userId).document(record.id).setData(from: record, merge: true)
+        try collections(userId: userId).document(sanitizedDocumentId(record.id)).setData(from: record, merge: true)
     }
 
     func deleteCollection(id: String, userId: String) async throws {
-        try await collections(userId: userId).document(id).delete()
+        try await collections(userId: userId).document(sanitizedDocumentId(id)).delete()
     }
 
     func syncTag(_ record: TagRecord, userId: String) async throws {
-        try tags(userId: userId).document(record.id).setData(from: record, merge: true)
+        try tags(userId: userId).document(sanitizedDocumentId(record.id)).setData(from: record, merge: true)
     }
 
     func deleteTag(id: String, userId: String) async throws {
-        try await tags(userId: userId).document(id).delete()
+        try await tags(userId: userId).document(sanitizedDocumentId(id)).delete()
+    }
+
+    /// Defensive: never let `/` in an id create unintended nested paths under the collection.
+    private func sanitizedDocumentId(_ id: String) -> String {
+        id.replacingOccurrences(of: "/", with: "__")
     }
 
     private func screenshots(userId: String) -> CollectionReference {
