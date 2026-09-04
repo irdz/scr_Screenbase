@@ -3,17 +3,17 @@
 <plist version="1.0">
 <dict>
 	<key>API_KEY</key>
-	<string>AIzaSyREPLACE-FROM-SCR-33-PROD-KEY</string>
+	<string>AIzaSyDe6KnQphHHGkWYxW77mCzmKf2l7fxiR2Q</string>
 	<key>GCM_SENDER_ID</key>
-	<string>000000000000</string>
+	<string>720028374770</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>com.getscreenbase.Screenbase</string>
 	<key>PROJECT_ID</key>
-	<string>screenbase-prod-svc</string>
+	<string>screenbase-prod-svc-h7p2</string>
 	<key>STORAGE_BUCKET</key>
-	<string>screenbase-prod-svc.firebasestorage.app</string>
+	<string>screenbase-prod-svc-h7p2.firebasestorage.app</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:000000000000:ios:0000000000000000000002</string>
+	<string>1:720028374770:ios:a8ab244c7b232b8f88a26b</string>
 </dict>
 </plist>
