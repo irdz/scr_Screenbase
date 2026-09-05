@@ -8,7 +8,11 @@ import SwiftUI
 
 struct CollectionsView: View {
     @Environment(MetadataManager.self) private var metadataManager
+    @Environment(PhotosManager.self) private var photosManager
+    @Environment(\.displayScale) private var displayScale
+
     @State private var viewModel: CollectionsViewModel?
+    @State private var thumbnailLoader: LibraryThumbnailLoader?
 
     private let columns = [
         GridItem(.flexible(), spacing: ScreenbaseMetrics.collectionGridSpacing),
@@ -18,8 +22,8 @@ struct CollectionsView: View {
     var body: some View {
         NavigationStack {
             Group {
-                if let viewModel {
-                    content(viewModel: viewModel)
+                if let viewModel, let thumbnailLoader {
+                    content(viewModel: viewModel, thumbnailLoader: thumbnailLoader)
                 } else {
                     ProgressView()
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -31,13 +35,23 @@ struct CollectionsView: View {
             if viewModel == nil {
                 viewModel = CollectionsViewModel(metadataManager: metadataManager)
             }
+            if thumbnailLoader == nil {
+                thumbnailLoader = LibraryThumbnailLoader(
+                    photosManager: photosManager,
+                    pointSize: 220,
+                    scale: displayScale
+                )
+            }
         }
     }
 
-    private func content(viewModel: CollectionsViewModel) -> some View {
+    private func content(
+        viewModel: CollectionsViewModel,
+        thumbnailLoader: LibraryThumbnailLoader
+    ) -> some View {
         ScrollView {
             VStack(alignment: .leading, spacing: ScreenbaseMetrics.spacing * 2) {
-                collectionsSection(viewModel: viewModel)
+                collectionsSection(viewModel: viewModel, thumbnailLoader: thumbnailLoader)
                 tagsSection(viewModel: viewModel)
             }
             .padding(.horizontal, ScreenbaseMetrics.edgePadding)
@@ -95,7 +109,10 @@ struct CollectionsView: View {
         }
     }
 
-    private func collectionsSection(viewModel: CollectionsViewModel) -> some View {
+    private func collectionsSection(
+        viewModel: CollectionsViewModel,
+        thumbnailLoader: LibraryThumbnailLoader
+    ) -> some View {
         VStack(alignment: .leading, spacing: ScreenbaseMetrics.spacing) {
             Text("Your collections")
                 .font(ScreenbaseFonts.display(size: 18, weight: .semibold))
@@ -107,9 +124,12 @@ struct CollectionsView: View {
                 }
 
                 ForEach(viewModel.collections) { collection in
+                    let previewAsset = viewModel.latestScreenshot(inCollection: collection.id)?
+                        .assetLocalIdentifier
                     CollectionTileView(
                         title: collection.name,
-                        subtitle: screenshotLabel(viewModel.screenshotCount(for: collection.id))
+                        subtitle: screenshotLabel(viewModel.screenshotCount(for: collection.id)),
+                        previewImage: previewAsset.flatMap { thumbnailLoader.image(for: $0) }
                     )
                     .contextMenu {
                         Button("Rename") {
@@ -117,6 +137,11 @@ struct CollectionsView: View {
                         }
                         Button("Delete", role: .destructive) {
                             viewModel.confirmDeleteCollection(collection)
+                        }
+                    }
+                    .onAppear {
+                        if let previewAsset {
+                            thumbnailLoader.loadIfNeeded(assetLocalIdentifier: previewAsset)
                         }
                     }
                 }
@@ -197,6 +222,7 @@ struct CollectionsView: View {
     let metadata = MetadataManager(local: InMemoryLocalMetadataStore(), remote: MockMetadataService())
     CollectionsView()
         .environment(metadata)
+        .environment(PhotosManager(service: MockPhotosService(status: .authorized, screenshotCount: 4)))
         .task {
             _ = try? await metadata.createCollection(name: "Onboarding")
             _ = try? await metadata.createTag(name: "bug")

@@ -79,6 +79,20 @@ final class CollectionsViewModel {
         metadataManager.screenshots(withTag: tagId).count
     }
 
+    /// Most recently added screenshot in the collection (by assignment/`updatedAt`, then capture date).
+    func latestScreenshot(inCollection collectionId: String) -> ScreenshotRecord? {
+        metadataManager.screenshots(inCollection: collectionId)
+            .sorted { lhs, rhs in
+                if lhs.updatedAt != rhs.updatedAt {
+                    return lhs.updatedAt > rhs.updatedAt
+                }
+                let leftCapture = lhs.captureDate ?? lhs.createdAt
+                let rightCapture = rhs.captureDate ?? rhs.createdAt
+                return leftCapture > rightCapture
+            }
+            .first
+    }
+
     func presentCreateCollection() {
         nameDraft = ""
         nameEditorMode = .createCollection
