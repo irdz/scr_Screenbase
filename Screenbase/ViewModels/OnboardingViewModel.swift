@@ -23,9 +23,15 @@ final class OnboardingViewModel {
     private(set) var scanFailed = false
 
     private let photosManager: PhotosManager
+    private let screenshotManager: ScreenshotManager?
 
-    init(photosManager: PhotosManager, step: Step = .welcome) {
+    init(
+        photosManager: PhotosManager,
+        screenshotManager: ScreenshotManager? = nil,
+        step: Step = .welcome
+    ) {
         self.photosManager = photosManager
+        self.screenshotManager = screenshotManager
         self.step = step
         photosStatus = photosManager.authorizationStatus
     }
@@ -70,10 +76,18 @@ final class OnboardingViewModel {
         isScanning = true
         scanFailed = false
         do {
-            screenshotCount = try await photosManager.screenshotCount()
+            async let count = photosManager.screenshotCount()
+            async let discovery: Void = startScreenshotDiscoveryIfAuthorized()
+            screenshotCount = try await count
+            await discovery
         } catch {
             scanFailed = true
         }
         isScanning = false
+    }
+
+    private func startScreenshotDiscoveryIfAuthorized() async {
+        guard photosStatus == .authorized || photosStatus == .limited else { return }
+        await screenshotManager?.startDiscovery()
     }
 }

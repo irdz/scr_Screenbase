@@ -15,11 +15,16 @@ struct ScreenbaseOnboardingView: View {
     init(
         appState: AppState,
         photosManager: PhotosManager,
+        screenshotManager: ScreenshotManager? = nil,
         startStep: OnboardingViewModel.Step = .welcome
     ) {
         self.appState = appState
         _viewModel = State(
-            initialValue: OnboardingViewModel(photosManager: photosManager, step: startStep)
+            initialValue: OnboardingViewModel(
+                photosManager: photosManager,
+                screenshotManager: screenshotManager,
+                step: startStep
+            )
         )
     }
 

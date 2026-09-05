@@ -75,6 +75,9 @@ private final class PhotoLibraryChangeObserver: NSObject, PHPhotoLibraryChangeOb
     }
 
     private func registerIfNeeded() {
+        let status = PHPhotoLibrary.authorizationStatus(for: .readWrite)
+        guard status == .authorized || status == .limited else { return }
+
         lock.lock()
         defer { lock.unlock() }
         guard !isRegistered else { return }
