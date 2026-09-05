@@ -103,6 +103,86 @@ struct MetadataManager_Tests {
         #expect(sut.screenshots.first?.collectionIds.isEmpty == true)
     }
 
+    @Test("Rename collection and tag update names")
+    @MainActor
+    func renameCollectionAndTag() async throws {
+        // Given
+        let remote = MockMetadataService()
+        let sut = MetadataManager(local: InMemoryLocalMetadataStore(), remote: remote)
+        sut.configure(userId: "user_1")
+        let collection = try await sut.createCollection(name: "Old Collection")
+        let tag = try await sut.createTag(name: "old-tag")
+
+        // When
+        try await sut.renameCollection(id: collection.id, name: "  New Collection ")
+        try await sut.renameTag(id: tag.id, name: "new-tag")
+
+        // Then
+        #expect(sut.collections.first?.name == "New Collection")
+        #expect(sut.tags.first?.name == "new-tag")
+        #expect(remote.syncedCollections.last?.name == "New Collection")
+        #expect(remote.syncedTags.last?.name == "new-tag")
+    }
+
+    @Test("Empty names are rejected")
+    @MainActor
+    func emptyNamesAreRejected() async {
+        // Given
+        let sut = MetadataManager(local: InMemoryLocalMetadataStore(), remote: MockMetadataService())
+
+        // When / Then
+        await #expect(throws: MetadataManagerError.invalidName) {
+            _ = try await sut.createCollection(name: "   ")
+        }
+        await #expect(throws: MetadataManagerError.invalidName) {
+            _ = try await sut.createTag(name: "")
+        }
+    }
+
+    @Test("Bulk assign collections and tags to multiple screenshots")
+    @MainActor
+    func bulkAssignToMultipleScreenshots() async throws {
+        // Given
+        let sut = MetadataManager(local: InMemoryLocalMetadataStore(), remote: MockMetadataService())
+        try await sut.upsertScreenshot(ScreenshotRecord(id: "a", assetLocalIdentifier: "a"))
+        try await sut.upsertScreenshot(ScreenshotRecord(id: "b", assetLocalIdentifier: "b"))
+        let collection = try await sut.createCollection(name: "Bugs")
+        let tag = try await sut.createTag(name: "ios")
+
+        // When
+        try await sut.assignCollections([collection.id], toScreenshots: ["a", "b"])
+        try await sut.assignTags([tag.id], toScreenshots: ["a", "b"])
+
+        // Then
+        #expect(sut.screenshots.allSatisfy { $0.collectionIds.contains(collection.id) })
+        #expect(sut.screenshots.allSatisfy { $0.tagIds.contains(tag.id) })
+        #expect(sut.screenshots(inCollection: collection.id).count == 2)
+    }
+
+    @Test("Delete tag clears associations without deleting screenshots")
+    @MainActor
+    func deleteTagClearsAssociations() async throws {
+        // Given
+        let sut = MetadataManager(local: InMemoryLocalMetadataStore(), remote: MockMetadataService())
+        let screenshot = ScreenshotRecord(
+            id: "shot-tag",
+            assetLocalIdentifier: "shot-tag",
+            collectionIds: [],
+            tagIds: []
+        )
+        try await sut.upsertScreenshot(screenshot)
+        let tag = try await sut.createTag(name: "temp")
+        try await sut.assignTag(tag.id, toScreenshot: screenshot.id)
+
+        // When
+        try await sut.deleteTag(id: tag.id)
+
+        // Then
+        #expect(sut.tags.isEmpty)
+        #expect(sut.screenshots.count == 1)
+        #expect(sut.screenshots.first?.tagIds.isEmpty == true)
+    }
+
     @Test("Annotation search matches case-insensitively")
     @MainActor
     func annotationSearchMatches() async throws {

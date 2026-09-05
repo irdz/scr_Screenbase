@@ -10,7 +10,10 @@ struct LibraryFABView: View {
     var onTap: () -> Void = {}
 
     var body: some View {
-        Button(action: onTap) {
+        Button(action: {
+            HapticsManager.instance.mediumImpact()
+            onTap()
+        }) {
             Ph.plus.bold
                 .color(ScreenbaseColors.background)
                 .frame(width: 24, height: 24)

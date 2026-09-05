@@ -86,6 +86,26 @@ struct LibraryViewModel_Tests {
         #expect(sut.isSelecting == false)
     }
 
+    @Test("Long press enters select mode and selects the screenshot")
+    @MainActor
+    func longPressEntersSelectMode() async throws {
+        // Given
+        let metadata = MetadataManager(local: InMemoryLocalMetadataStore(), remote: MockMetadataService())
+        try await metadata.upsertScreenshot(.mock)
+        let sut = LibraryViewModel(
+            metadataManager: metadata,
+            screenshotManager: ScreenshotManager(service: MockScreenshotService(screenshots: []), index: metadata)
+        )
+
+        // When
+        sut.beginSelecting(screenshotId: ScreenshotRecord.mock.id)
+
+        // Then
+        #expect(sut.isSelecting)
+        #expect(sut.isSelected(ScreenshotRecord.mock.id))
+        #expect(sut.detailScreenshotId == nil)
+    }
+
     @Test("Tap outside select mode opens detail")
     @MainActor
     func tapOpensDetailOutsideSelectMode() async throws {
@@ -120,5 +140,36 @@ struct LibraryViewModel_Tests {
         // Then
         #expect(sut.contentState == .empty)
         #expect(sut.filteredScreenshots.isEmpty)
+    }
+
+    @Test("Multi-select assign applies collections and tags then exits select mode")
+    @MainActor
+    func multiSelectAssignAppliesAndExitsSelectMode() async throws {
+        // Given
+        let metadata = MetadataManager(local: InMemoryLocalMetadataStore(), remote: MockMetadataService())
+        try await metadata.upsertScreenshot(ScreenshotRecord(id: "a", assetLocalIdentifier: "a"))
+        try await metadata.upsertScreenshot(ScreenshotRecord(id: "b", assetLocalIdentifier: "b"))
+        let collection = try await metadata.createCollection(name: "Bugs")
+        let tag = try await metadata.createTag(name: "ios")
+        let sut = LibraryViewModel(
+            metadataManager: metadata,
+            screenshotManager: ScreenshotManager(service: MockScreenshotService(screenshots: []), index: metadata)
+        )
+
+        // When
+        sut.toggleSelecting()
+        sut.handleTileTap(screenshotId: "a")
+        sut.handleTileTap(screenshotId: "b")
+        sut.presentAssignSheet()
+        sut.toggleAssignCollection(collection.id)
+        sut.toggleAssignTag(tag.id)
+        await sut.applyAssignment()
+
+        // Then
+        #expect(metadata.screenshots.allSatisfy { $0.collectionIds.contains(collection.id) })
+        #expect(metadata.screenshots.allSatisfy { $0.tagIds.contains(tag.id) })
+        #expect(sut.isSelecting == false)
+        #expect(sut.selectedScreenshotIds.isEmpty)
+        #expect(sut.isAssignSheetPresented == false)
     }
 }

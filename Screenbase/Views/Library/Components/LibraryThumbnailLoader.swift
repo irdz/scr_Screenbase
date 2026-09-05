@@ -17,9 +17,8 @@ final class LibraryThumbnailLoader {
     private var inFlight: Set<String> = []
     private let targetSize: CGSize
 
-    init(photosManager: PhotosManager, pointSize: CGFloat = 180) {
+    init(photosManager: PhotosManager, pointSize: CGFloat = 180, scale: CGFloat) {
         self.photosManager = photosManager
-        let scale = UIScreen.main.scale
         targetSize = CGSize(width: pointSize * scale, height: pointSize * scale)
     }
 
