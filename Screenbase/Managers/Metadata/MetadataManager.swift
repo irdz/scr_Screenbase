@@ -149,6 +149,21 @@ final class MetadataManager {
         }
     }
 
+    /// Replaces collection membership for a screenshot with the given set.
+    func setCollections(_ collectionIds: [String], forScreenshot screenshotId: String) async throws {
+        guard let index = screenshots.firstIndex(where: { $0.id == screenshotId }) else { return }
+        let validIds = collectionIds.filter { id in collections.contains(where: { $0.id == id }) }
+        let uniqueIds = Array(Set(validIds))
+        guard Set(screenshots[index].collectionIds) != Set(uniqueIds) else { return }
+        screenshots[index].collectionIds = uniqueIds
+        screenshots[index].updatedAt = Date()
+        let updated = screenshots[index]
+        try persistLocal()
+        await syncRemote { [remote] in
+            try await remote.syncScreenshot(updated, userId: $0)
+        }
+    }
+
     // MARK: - Tags
 
     @discardableResult
@@ -227,6 +242,21 @@ final class MetadataManager {
     func removeTag(_ tagId: String, fromScreenshot screenshotId: String) async throws {
         guard let index = screenshots.firstIndex(where: { $0.id == screenshotId }) else { return }
         screenshots[index].tagIds.removeAll { $0 == tagId }
+        screenshots[index].updatedAt = Date()
+        let updated = screenshots[index]
+        try persistLocal()
+        await syncRemote { [remote] in
+            try await remote.syncScreenshot(updated, userId: $0)
+        }
+    }
+
+    /// Replaces tag membership for a screenshot with the given set.
+    func setTags(_ tagIds: [String], forScreenshot screenshotId: String) async throws {
+        guard let index = screenshots.firstIndex(where: { $0.id == screenshotId }) else { return }
+        let validIds = tagIds.filter { id in tags.contains(where: { $0.id == id }) }
+        let uniqueIds = Array(Set(validIds))
+        guard Set(screenshots[index].tagIds) != Set(uniqueIds) else { return }
+        screenshots[index].tagIds = uniqueIds
         screenshots[index].updatedAt = Date()
         let updated = screenshots[index]
         try persistLocal()

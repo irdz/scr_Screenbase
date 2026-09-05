@@ -32,4 +32,8 @@ final class PhotosManager {
     func thumbnailImage(forAssetLocalIdentifier localIdentifier: String, targetSize: CGSize) async -> UIImage? {
         await service.thumbnailImage(forAssetLocalIdentifier: localIdentifier, targetSize: targetSize)
     }
+
+    func fullImage(forAssetLocalIdentifier localIdentifier: String, targetSize: CGSize) async -> UIImage? {
+        await service.fullImage(forAssetLocalIdentifier: localIdentifier, targetSize: targetSize)
+    }
 }

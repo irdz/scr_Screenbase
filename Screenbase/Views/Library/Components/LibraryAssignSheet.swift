@@ -7,10 +7,13 @@ import PhosphorSwift
 import SwiftUI
 
 struct LibraryAssignSheet: View {
+    var title: String = "Assign"
     var collections: [CollectionRecord] = []
     var tags: [TagRecord] = []
     var selectedCollectionIds: Set<String> = []
     var selectedTagIds: Set<String> = []
+    var showsCollections: Bool = true
+    var showsTags: Bool = true
     var canApply: Bool = false
     var onToggleCollection: (String) -> Void = { _ in }
     var onToggleTag: (String) -> Void = { _ in }
@@ -22,48 +25,52 @@ struct LibraryAssignSheet: View {
     var body: some View {
         NavigationStack {
             List {
-                Section("Collections") {
-                    Button {
-                        onCreateCollection()
-                    } label: {
-                        Label("New Collection", systemImage: "plus")
-                            .font(ScreenbaseFonts.display(size: 16, weight: .semibold))
-                            .foregroundStyle(ScreenbaseColors.ink)
-                    }
-                    .screenbaseListRow()
+                if showsCollections {
+                    Section("Collections") {
+                        Button {
+                            onCreateCollection()
+                        } label: {
+                            Label("New Collection", systemImage: "plus")
+                                .font(ScreenbaseFonts.display(size: 16, weight: .semibold))
+                                .foregroundStyle(ScreenbaseColors.ink)
+                        }
+                        .screenbaseListRow()
 
-                    ForEach(collections) { collection in
-                        assignRow(
-                            title: collection.name,
-                            isSelected: selectedCollectionIds.contains(collection.id)
-                        ) {
-                            onToggleCollection(collection.id)
+                        ForEach(collections) { collection in
+                            assignRow(
+                                title: collection.name,
+                                isSelected: selectedCollectionIds.contains(collection.id)
+                            ) {
+                                onToggleCollection(collection.id)
+                            }
                         }
                     }
                 }
 
-                Section("Tags") {
-                    Button {
-                        onCreateTag()
-                    } label: {
-                        Label("New Tag", systemImage: "plus")
-                            .font(ScreenbaseFonts.display(size: 16, weight: .semibold))
-                            .foregroundStyle(ScreenbaseColors.ink)
-                    }
-                    .screenbaseListRow()
+                if showsTags {
+                    Section("Tags") {
+                        Button {
+                            onCreateTag()
+                        } label: {
+                            Label("New Tag", systemImage: "plus")
+                                .font(ScreenbaseFonts.display(size: 16, weight: .semibold))
+                                .foregroundStyle(ScreenbaseColors.ink)
+                        }
+                        .screenbaseListRow()
 
-                    ForEach(tags) { tag in
-                        assignRow(
-                            title: tag.name,
-                            isSelected: selectedTagIds.contains(tag.id)
-                        ) {
-                            onToggleTag(tag.id)
+                        ForEach(tags) { tag in
+                            assignRow(
+                                title: tag.name,
+                                isSelected: selectedTagIds.contains(tag.id)
+                            ) {
+                                onToggleTag(tag.id)
+                            }
                         }
                     }
                 }
             }
             .screenbaseListStyle()
-            .navigationTitle("Assign")
+            .navigationTitle(title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

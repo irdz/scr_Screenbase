@@ -35,6 +35,29 @@ struct PhotosServiceLive: PhotosService {
     }
 
     func thumbnailImage(forAssetLocalIdentifier localIdentifier: String, targetSize: CGSize) async -> UIImage? {
+        await requestImage(
+            forAssetLocalIdentifier: localIdentifier,
+            targetSize: targetSize,
+            contentMode: .aspectFill,
+            resizeMode: .fast
+        )
+    }
+
+    func fullImage(forAssetLocalIdentifier localIdentifier: String, targetSize: CGSize) async -> UIImage? {
+        await requestImage(
+            forAssetLocalIdentifier: localIdentifier,
+            targetSize: targetSize,
+            contentMode: .aspectFit,
+            resizeMode: .exact
+        )
+    }
+
+    private func requestImage(
+        forAssetLocalIdentifier localIdentifier: String,
+        targetSize: CGSize,
+        contentMode: PHImageContentMode,
+        resizeMode: PHImageRequestOptionsResizeMode
+    ) async -> UIImage? {
         let status = authorizationStatus
         guard status == .authorized || status == .limited else { return nil }
 
@@ -47,14 +70,14 @@ struct PhotosServiceLive: PhotosService {
 
             let options = PHImageRequestOptions()
             options.deliveryMode = .highQualityFormat
-            options.resizeMode = .fast
+            options.resizeMode = resizeMode
             options.isNetworkAccessAllowed = true
             options.isSynchronous = false
 
             PHImageManager.default().requestImage(
                 for: asset,
                 targetSize: targetSize,
-                contentMode: .aspectFill,
+                contentMode: contentMode,
                 options: options
             ) { image, _ in
                 continuation.resume(returning: image)
