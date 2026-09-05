@@ -8,7 +8,7 @@ import UIKit
 
 struct ShareActivityView: UIViewControllerRepresentable {
     var activityItems: [Any]
-    var applicationActivities: [UIActivity]? = nil
+    var applicationActivities: [UIActivity]?
 
     func makeUIViewController(context: Context) -> UIActivityViewController {
         UIActivityViewController(

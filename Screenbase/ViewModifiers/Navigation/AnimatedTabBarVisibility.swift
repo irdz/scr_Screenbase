@@ -56,9 +56,9 @@ private struct TabBarSlideEffect: UIViewRepresentable {
                 guard let tabBar = Self.findTabBar(from: uiView) ?? Self.findTabBarInKeyWindow() else {
                     return
                 }
-                guard self.lastVisible != isVisible else { return }
-                self.lastVisible = isVisible
-                self.performSlide(on: tabBar, isVisible: isVisible)
+                guard lastVisible != isVisible else { return }
+                lastVisible = isVisible
+                performSlide(on: tabBar, isVisible: isVisible)
             }
         }
 

@@ -19,7 +19,7 @@ struct CollectionDetailViewModel_Tests {
             ScreenshotRecord(
                 id: "old",
                 assetLocalIdentifier: "old",
-                captureDate: Date(timeIntervalSince1970: 1_000),
+                captureDate: Date(timeIntervalSince1970: 1000),
                 collectionIds: [collection.id]
             )
         )
@@ -27,7 +27,7 @@ struct CollectionDetailViewModel_Tests {
             ScreenshotRecord(
                 id: "new",
                 assetLocalIdentifier: "new",
-                captureDate: Date(timeIntervalSince1970: 2_000),
+                captureDate: Date(timeIntervalSince1970: 2000),
                 collectionIds: [collection.id]
             )
         )
@@ -35,7 +35,7 @@ struct CollectionDetailViewModel_Tests {
             ScreenshotRecord(
                 id: "other",
                 assetLocalIdentifier: "other",
-                captureDate: Date(timeIntervalSince1970: 3_000),
+                captureDate: Date(timeIntervalSince1970: 3000),
                 collectionIds: []
             )
         )

@@ -43,7 +43,7 @@ struct CollectionsViewModel_Tests {
         #expect(metadata.tags.first?.name == "new")
 
         // When
-        sut.confirmDeleteTag(try #require(metadata.tags.first))
+        try sut.confirmDeleteTag(#require(metadata.tags.first))
         await sut.deletePendingTag()
 
         // Then
@@ -60,21 +60,21 @@ struct CollectionsViewModel_Tests {
             ScreenshotRecord(
                 id: "older",
                 assetLocalIdentifier: "older",
-                updatedAt: Date(timeIntervalSince1970: 1_000)
+                updatedAt: Date(timeIntervalSince1970: 1000)
             )
         )
         try await metadata.upsertScreenshot(
             ScreenshotRecord(
                 id: "newer",
                 assetLocalIdentifier: "newer",
-                updatedAt: Date(timeIntervalSince1970: 2_000)
+                updatedAt: Date(timeIntervalSince1970: 2000)
             )
         )
         try await metadata.assignCollection(collection.id, toScreenshot: "older")
         try await metadata.assignCollection(collection.id, toScreenshot: "newer")
         // Re-stamp older as more recently updated so it wins as "latest added".
         var older = try #require(metadata.screenshots.first(where: { $0.id == "older" }))
-        older.updatedAt = Date(timeIntervalSince1970: 3_000)
+        older.updatedAt = Date(timeIntervalSince1970: 3000)
         try await metadata.upsertScreenshot(older)
         let sut = CollectionsViewModel(metadataManager: metadata)
 

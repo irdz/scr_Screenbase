@@ -108,7 +108,6 @@ struct ScreenshotDetailView: View {
         }
     }
 
-    @ViewBuilder
     private func imageSection(viewModel: ScreenshotDetailViewModel) -> some View {
         Group {
             switch viewModel.imageState {
