@@ -78,11 +78,21 @@ struct LibraryView: View {
                 content(for: viewModel, thumbnailLoader: thumbnailLoader)
             }
 
-            LibraryFABView {
-                viewModel.presentAddSheet()
+            VStack {
+                Spacer()
+                if viewModel.canPresentAssignSheet {
+                    selectionToolbar(viewModel: viewModel)
+                        .padding(.horizontal, ScreenbaseMetrics.edgePadding)
+                        .padding(.bottom, ScreenbaseMetrics.edgePadding)
+                } else {
+                    LibraryFABView {
+                        viewModel.presentAddSheet()
+                    }
+                    .padding(.trailing, ScreenbaseMetrics.edgePadding)
+                    .padding(.bottom, ScreenbaseMetrics.edgePadding)
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+                }
             }
-            .padding(.trailing, ScreenbaseMetrics.edgePadding)
-            .padding(.bottom, ScreenbaseMetrics.edgePadding)
         }
         .sheet(isPresented: Binding(
             get: { viewModel.isAddSheetPresented },
@@ -91,6 +101,45 @@ struct LibraryView: View {
             LibraryAddSourceSheet { source in
                 viewModel.isAddSheetPresented = false
                 handleAddSource(source)
+            }
+        }
+        .sheet(isPresented: Binding(
+            get: { viewModel.isAssignSheetPresented },
+            set: { viewModel.isAssignSheetPresented = $0 }
+        )) {
+            LibraryAssignSheet(
+                collections: viewModel.assignableCollections,
+                tags: viewModel.assignableTags,
+                selectedCollectionIds: viewModel.selectedAssignCollectionIds,
+                selectedTagIds: viewModel.selectedAssignTagIds,
+                canApply: viewModel.canApplyAssignment,
+                onToggleCollection: viewModel.toggleAssignCollection,
+                onToggleTag: viewModel.toggleAssignTag,
+                onCreateCollection: viewModel.presentCreateAssignCollection,
+                onCreateTag: viewModel.presentCreateAssignTag,
+                onApply: {
+                    Task { await viewModel.applyAssignment() }
+                },
+                onCancel: {
+                    viewModel.isAssignSheetPresented = false
+                }
+            )
+            .alert(
+                viewModel.assignNameEditorTitle,
+                isPresented: Binding(
+                    get: { viewModel.isAssignNameEditorPresented },
+                    set: { viewModel.isAssignNameEditorPresented = $0 }
+                )
+            ) {
+                TextField("Name", text: Binding(
+                    get: { viewModel.assignNameDraft },
+                    set: { viewModel.assignNameDraft = $0 }
+                ))
+                Button("Save") {
+                    Task { await viewModel.saveAssignNameEditor() }
+                }
+                .disabled(!viewModel.canSaveAssignName)
+                Button("Cancel", role: .cancel) {}
             }
         }
     }
@@ -112,6 +161,31 @@ struct LibraryView: View {
         .padding(.horizontal, ScreenbaseMetrics.edgePadding)
         .padding(.top, ScreenbaseMetrics.spacing)
         .padding(.bottom, ScreenbaseMetrics.spacing)
+    }
+
+    private func selectionToolbar(viewModel: LibraryViewModel) -> some View {
+        HStack(spacing: 12) {
+            Text("\(viewModel.selectionCount) selected")
+                .font(.system(size: 14, weight: .medium))
+                .foregroundStyle(ScreenbaseColors.gray)
+
+            Spacer()
+
+            Button {
+                viewModel.presentAssignSheet()
+            } label: {
+                Text("Assign")
+                    .primaryButtonStyle()
+            }
+            .frame(maxWidth: 160)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .background(
+            RoundedRectangle(cornerRadius: ScreenbaseMetrics.radiusCard, style: .continuous)
+                .fill(ScreenbaseColors.elevated)
+                .shadow(color: .black.opacity(0.08), radius: 12, y: 4)
+        )
     }
 
     @ViewBuilder
@@ -168,7 +242,7 @@ struct LibraryView: View {
                 }
             }
             .padding(.horizontal, ScreenbaseMetrics.edgePadding)
-            .padding(.bottom, 88)
+            .padding(.bottom, viewModel.canPresentAssignSheet ? 110 : 88)
         }
     }
 

@@ -67,13 +67,28 @@ final class MetadataManager {
 
     @discardableResult
     func createCollection(name: String) async throws -> CollectionRecord {
-        let record = CollectionRecord(name: name)
+        let trimmed = Self.trimmedName(name)
+        guard !trimmed.isEmpty else { throw MetadataManagerError.invalidName }
+        let record = CollectionRecord(name: trimmed)
         collections.append(record)
         try persistLocal()
         await syncRemote { [remote] in
             try await remote.syncCollection(record, userId: $0)
         }
         return record
+    }
+
+    func renameCollection(id: String, name: String) async throws {
+        let trimmed = Self.trimmedName(name)
+        guard !trimmed.isEmpty else { throw MetadataManagerError.invalidName }
+        guard let index = collections.firstIndex(where: { $0.id == id }) else { return }
+        collections[index].name = trimmed
+        collections[index].updatedAt = Date()
+        let updated = collections[index]
+        try persistLocal()
+        await syncRemote { [remote] in
+            try await remote.syncCollection(updated, userId: $0)
+        }
     }
 
     func deleteCollection(id: String) async throws {
@@ -92,17 +107,34 @@ final class MetadataManager {
     }
 
     func assignCollection(_ collectionId: String, toScreenshot screenshotId: String) async throws {
-        guard collections.contains(where: { $0.id == collectionId }),
-              let index = screenshots.firstIndex(where: { $0.id == screenshotId })
-        else { return }
-        if !screenshots[index].collectionIds.contains(collectionId) {
-            screenshots[index].collectionIds.append(collectionId)
-            screenshots[index].updatedAt = Date()
+        try await assignCollections([collectionId], toScreenshots: [screenshotId])
+    }
+
+    func assignCollections(_ collectionIds: [String], toScreenshots screenshotIds: [String]) async throws {
+        let validCollectionIds = collectionIds.filter { id in
+            collections.contains(where: { $0.id == id })
         }
-        let updated = screenshots[index]
+        guard !validCollectionIds.isEmpty, !screenshotIds.isEmpty else { return }
+
+        var changed: [ScreenshotRecord] = []
+        for screenshotId in screenshotIds {
+            guard let index = screenshots.firstIndex(where: { $0.id == screenshotId }) else { continue }
+            var didChange = false
+            for collectionId in validCollectionIds where !screenshots[index].collectionIds.contains(collectionId) {
+                screenshots[index].collectionIds.append(collectionId)
+                didChange = true
+            }
+            guard didChange else { continue }
+            screenshots[index].updatedAt = Date()
+            changed.append(screenshots[index])
+        }
+
+        guard !changed.isEmpty else { return }
         try persistLocal()
-        await syncRemote { [remote] in
-            try await remote.syncScreenshot(updated, userId: $0)
+        await syncRemote { [remote] userId in
+            for screenshot in changed {
+                try await remote.syncScreenshot(screenshot, userId: userId)
+            }
         }
     }
 
@@ -121,13 +153,28 @@ final class MetadataManager {
 
     @discardableResult
     func createTag(name: String) async throws -> TagRecord {
-        let record = TagRecord(name: name)
+        let trimmed = Self.trimmedName(name)
+        guard !trimmed.isEmpty else { throw MetadataManagerError.invalidName }
+        let record = TagRecord(name: trimmed)
         tags.append(record)
         try persistLocal()
         await syncRemote { [remote] in
             try await remote.syncTag(record, userId: $0)
         }
         return record
+    }
+
+    func renameTag(id: String, name: String) async throws {
+        let trimmed = Self.trimmedName(name)
+        guard !trimmed.isEmpty else { throw MetadataManagerError.invalidName }
+        guard let index = tags.firstIndex(where: { $0.id == id }) else { return }
+        tags[index].name = trimmed
+        tags[index].updatedAt = Date()
+        let updated = tags[index]
+        try persistLocal()
+        await syncRemote { [remote] in
+            try await remote.syncTag(updated, userId: $0)
+        }
     }
 
     func deleteTag(id: String) async throws {
@@ -146,17 +193,34 @@ final class MetadataManager {
     }
 
     func assignTag(_ tagId: String, toScreenshot screenshotId: String) async throws {
-        guard tags.contains(where: { $0.id == tagId }),
-              let index = screenshots.firstIndex(where: { $0.id == screenshotId })
-        else { return }
-        if !screenshots[index].tagIds.contains(tagId) {
-            screenshots[index].tagIds.append(tagId)
-            screenshots[index].updatedAt = Date()
+        try await assignTags([tagId], toScreenshots: [screenshotId])
+    }
+
+    func assignTags(_ tagIds: [String], toScreenshots screenshotIds: [String]) async throws {
+        let validTagIds = tagIds.filter { id in
+            tags.contains(where: { $0.id == id })
         }
-        let updated = screenshots[index]
+        guard !validTagIds.isEmpty, !screenshotIds.isEmpty else { return }
+
+        var changed: [ScreenshotRecord] = []
+        for screenshotId in screenshotIds {
+            guard let index = screenshots.firstIndex(where: { $0.id == screenshotId }) else { continue }
+            var didChange = false
+            for tagId in validTagIds where !screenshots[index].tagIds.contains(tagId) {
+                screenshots[index].tagIds.append(tagId)
+                didChange = true
+            }
+            guard didChange else { continue }
+            screenshots[index].updatedAt = Date()
+            changed.append(screenshots[index])
+        }
+
+        guard !changed.isEmpty else { return }
         try persistLocal()
-        await syncRemote { [remote] in
-            try await remote.syncScreenshot(updated, userId: $0)
+        await syncRemote { [remote] userId in
+            for screenshot in changed {
+                try await remote.syncScreenshot(screenshot, userId: userId)
+            }
         }
     }
 
@@ -169,6 +233,10 @@ final class MetadataManager {
         await syncRemote { [remote] in
             try await remote.syncScreenshot(updated, userId: $0)
         }
+    }
+
+    private static func trimmedName(_ name: String) -> String {
+        name.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     // MARK: - Queries (Library / Search)

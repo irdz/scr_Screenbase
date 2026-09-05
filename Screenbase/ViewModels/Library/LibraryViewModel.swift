@@ -19,7 +19,17 @@ final class LibraryViewModel {
     var isSelecting = false
     var selectedScreenshotIds: Set<String> = []
     var isAddSheetPresented = false
+    var isAssignSheetPresented = false
+    var selectedAssignCollectionIds: Set<String> = []
+    var selectedAssignTagIds: Set<String> = []
+    var assignNameEditorMode: AssignNameEditorMode?
+    var assignNameDraft = ""
     var detailScreenshotId: String?
+
+    enum AssignNameEditorMode: Equatable {
+        case collection
+        case tag
+    }
 
     private let metadataManager: MetadataManager
     private let screenshotManager: ScreenshotManager
@@ -77,6 +87,52 @@ final class LibraryViewModel {
         12
     }
 
+    var selectionCount: Int {
+        selectedScreenshotIds.count
+    }
+
+    var canPresentAssignSheet: Bool {
+        isSelecting && !selectedScreenshotIds.isEmpty
+    }
+
+    var assignableCollections: [CollectionRecord] {
+        metadataManager.collections.sorted {
+            $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
+        }
+    }
+
+    var assignableTags: [TagRecord] {
+        metadataManager.tags.sorted {
+            $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
+        }
+    }
+
+    var canApplyAssignment: Bool {
+        !selectedAssignCollectionIds.isEmpty || !selectedAssignTagIds.isEmpty
+    }
+
+    var isAssignNameEditorPresented: Bool {
+        get { assignNameEditorMode != nil }
+        set {
+            if !newValue {
+                assignNameEditorMode = nil
+                assignNameDraft = ""
+            }
+        }
+    }
+
+    var assignNameEditorTitle: String {
+        switch assignNameEditorMode {
+        case .collection: "New Collection"
+        case .tag: "New Tag"
+        case nil: ""
+        }
+    }
+
+    var canSaveAssignName: Bool {
+        !assignNameDraft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
     func selectFilter(_ filter: LibraryFilter) {
         selectedFilter = filter
     }
@@ -85,6 +141,8 @@ final class LibraryViewModel {
         isSelecting.toggle()
         if !isSelecting {
             selectedScreenshotIds.removeAll()
+            isAssignSheetPresented = false
+            resetAssignDraft()
         }
     }
 
@@ -108,7 +166,80 @@ final class LibraryViewModel {
         isAddSheetPresented = true
     }
 
+    func presentAssignSheet() {
+        guard canPresentAssignSheet else { return }
+        resetAssignDraft()
+        isAssignSheetPresented = true
+    }
+
+    func toggleAssignCollection(_ id: String) {
+        if selectedAssignCollectionIds.contains(id) {
+            selectedAssignCollectionIds.remove(id)
+        } else {
+            selectedAssignCollectionIds.insert(id)
+        }
+    }
+
+    func toggleAssignTag(_ id: String) {
+        if selectedAssignTagIds.contains(id) {
+            selectedAssignTagIds.remove(id)
+        } else {
+            selectedAssignTagIds.insert(id)
+        }
+    }
+
+    func presentCreateAssignCollection() {
+        assignNameDraft = ""
+        assignNameEditorMode = .collection
+    }
+
+    func presentCreateAssignTag() {
+        assignNameDraft = ""
+        assignNameEditorMode = .tag
+    }
+
+    func saveAssignNameEditor() async {
+        let draft = assignNameDraft
+        guard let mode = assignNameEditorMode else { return }
+        do {
+            switch mode {
+            case .collection:
+                let collection = try await metadataManager.createCollection(name: draft)
+                selectedAssignCollectionIds.insert(collection.id)
+            case .tag:
+                let tag = try await metadataManager.createTag(name: draft)
+                selectedAssignTagIds.insert(tag.id)
+            }
+            assignNameEditorMode = nil
+            assignNameDraft = ""
+        } catch {
+            // Keep editor open for empty/invalid names.
+        }
+    }
+
+    func applyAssignment() async {
+        let screenshotIds = Array(selectedScreenshotIds)
+        let collectionIds = Array(selectedAssignCollectionIds)
+        let tagIds = Array(selectedAssignTagIds)
+        guard !screenshotIds.isEmpty, (!collectionIds.isEmpty || !tagIds.isEmpty) else { return }
+
+        try? await metadataManager.assignCollections(collectionIds, toScreenshots: screenshotIds)
+        try? await metadataManager.assignTags(tagIds, toScreenshots: screenshotIds)
+
+        isAssignSheetPresented = false
+        resetAssignDraft()
+        isSelecting = false
+        selectedScreenshotIds.removeAll()
+    }
+
     func clearDetail() {
         detailScreenshotId = nil
+    }
+
+    private func resetAssignDraft() {
+        selectedAssignCollectionIds.removeAll()
+        selectedAssignTagIds.removeAll()
+        assignNameEditorMode = nil
+        assignNameDraft = ""
     }
 }
