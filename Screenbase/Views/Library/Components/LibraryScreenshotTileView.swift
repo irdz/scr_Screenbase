@@ -14,22 +14,26 @@ struct LibraryScreenshotTileView: View {
     var image: UIImage?
     var showsPlaceholder: Bool = false
     var onTap: () -> Void = {}
+    var onLongPress: () -> Void = {}
 
     var body: some View {
-        Button(action: onTap) {
-            tileContent
-                .aspectRatio(1, contentMode: .fit)
-                .clipShape(RoundedRectangle(cornerRadius: ScreenbaseMetrics.radiusThumbnail, style: .continuous))
-                .overlay(alignment: .bottomTrailing) {
-                    if isSelecting {
-                        selectionBadge
-                            .padding(8)
-                    }
+        tileContent
+            .aspectRatio(1, contentMode: .fit)
+            .clipShape(RoundedRectangle(cornerRadius: ScreenbaseMetrics.radiusThumbnail, style: .continuous))
+            .overlay(alignment: .bottomTrailing) {
+                if isSelecting {
+                    selectionBadge
+                        .padding(8)
                 }
-        }
-        .buttonStyle(.plain)
-        .accessibilityLabel("Screenshot")
-        .accessibilityAddTraits(isSelected ? .isSelected : [])
+            }
+            .contentShape(RoundedRectangle(cornerRadius: ScreenbaseMetrics.radiusThumbnail, style: .continuous))
+            .onTapGesture(perform: onTap)
+            .onLongPressGesture(perform: onLongPress)
+            .accessibilityLabel("Screenshot")
+            .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
+            .accessibilityAction(named: "Select") {
+                onLongPress()
+            }
     }
 
     @ViewBuilder

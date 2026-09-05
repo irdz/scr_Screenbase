@@ -236,10 +236,14 @@ struct LibraryView: View {
                             assetLocalIdentifier: record.assetLocalIdentifier,
                             isSelecting: viewModel.isSelecting,
                             isSelected: viewModel.isSelected(record.id),
-                            image: thumbnailLoader.image(for: record.assetLocalIdentifier)
-                        ) {
-                            viewModel.handleTileTap(screenshotId: record.id)
-                        }
+                            image: thumbnailLoader.image(for: record.assetLocalIdentifier),
+                            onTap: {
+                                viewModel.handleTileTap(screenshotId: record.id)
+                            },
+                            onLongPress: {
+                                viewModel.beginSelecting(screenshotId: record.id)
+                            }
+                        )
                         .onAppear {
                             thumbnailLoader.loadIfNeeded(assetLocalIdentifier: record.assetLocalIdentifier)
                         }

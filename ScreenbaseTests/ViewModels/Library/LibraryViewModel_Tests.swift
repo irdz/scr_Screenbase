@@ -86,6 +86,26 @@ struct LibraryViewModel_Tests {
         #expect(sut.isSelecting == false)
     }
 
+    @Test("Long press enters select mode and selects the screenshot")
+    @MainActor
+    func longPressEntersSelectMode() async throws {
+        // Given
+        let metadata = MetadataManager(local: InMemoryLocalMetadataStore(), remote: MockMetadataService())
+        try await metadata.upsertScreenshot(.mock)
+        let sut = LibraryViewModel(
+            metadataManager: metadata,
+            screenshotManager: ScreenshotManager(service: MockScreenshotService(screenshots: []), index: metadata)
+        )
+
+        // When
+        sut.beginSelecting(screenshotId: ScreenshotRecord.mock.id)
+
+        // Then
+        #expect(sut.isSelecting)
+        #expect(sut.isSelected(ScreenshotRecord.mock.id))
+        #expect(sut.detailScreenshotId == nil)
+    }
+
     @Test("Tap outside select mode opens detail")
     @MainActor
     func tapOpensDetailOutsideSelectMode() async throws {

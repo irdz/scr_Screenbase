@@ -146,6 +146,17 @@ final class LibraryViewModel {
         }
     }
 
+    /// Enters select mode and selects the long-pressed screenshot.
+    func beginSelecting(screenshotId: String) {
+        guard !isSelecting else {
+            handleTileTap(screenshotId: screenshotId)
+            return
+        }
+        isSelecting = true
+        selectedScreenshotIds = [screenshotId]
+        HapticsManager.instance.impact(style: .medium)
+    }
+
     func handleTileTap(screenshotId: String) {
         if isSelecting {
             if selectedScreenshotIds.contains(screenshotId) {
