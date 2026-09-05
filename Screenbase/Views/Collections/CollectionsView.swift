@@ -122,6 +122,7 @@ struct CollectionsView: View {
                 NewCollectionTileView {
                     viewModel.presentCreateCollection()
                 }
+                .frame(maxWidth: .infinity)
 
                 ForEach(viewModel.collections) { collection in
                     let previewAsset = viewModel.latestScreenshot(inCollection: collection.id)?
@@ -131,6 +132,7 @@ struct CollectionsView: View {
                         subtitle: screenshotLabel(viewModel.screenshotCount(for: collection.id)),
                         previewImage: previewAsset.flatMap { thumbnailLoader.image(for: $0) }
                     )
+                    .frame(maxWidth: .infinity)
                     .contextMenu {
                         Button("Rename") {
                             viewModel.presentRenameCollection(collection)
