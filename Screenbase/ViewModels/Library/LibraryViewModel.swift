@@ -154,7 +154,7 @@ final class LibraryViewModel {
         }
         isSelecting = true
         selectedScreenshotIds = [screenshotId]
-        HapticsManager.instance.impact(style: .medium)
+        HapticsManager.instance.mediumImpact()
     }
 
     func handleTileTap(screenshotId: String) {
@@ -164,7 +164,7 @@ final class LibraryViewModel {
             } else {
                 selectedScreenshotIds.insert(screenshotId)
             }
-            HapticsManager.instance.impact(style: .light)
+            HapticsManager.instance.lightImpact()
         } else {
             detailScreenshotId = screenshotId
         }

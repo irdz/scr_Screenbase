@@ -157,7 +157,7 @@ struct LibraryView: View {
             Spacer()
 
             Button(viewModel.isSelecting ? "Done" : "Select") {
-                HapticsManager.instance.impact(style: .light)
+                HapticsManager.instance.lightImpact()
                 viewModel.toggleSelecting()
             }
             .font(ScreenbaseFonts.display(size: 16, weight: .semibold))
@@ -177,7 +177,7 @@ struct LibraryView: View {
             Spacer()
 
             Button("Assign") {
-                HapticsManager.instance.impact(style: .medium)
+                HapticsManager.instance.mediumImpact()
                 viewModel.presentAssignSheet()
             }
             .buttonStyle(.screenbasePrimary)

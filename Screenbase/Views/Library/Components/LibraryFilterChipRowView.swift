@@ -14,7 +14,7 @@ struct LibraryFilterChipRowView: View {
             HStack(spacing: ScreenbaseMetrics.spacing) {
                 ForEach(LibraryFilter.allCases) { filter in
                     Button {
-                        HapticsManager.instance.impact(style: .light)
+                        HapticsManager.instance.lightImpact()
                         onSelect(filter)
                     } label: {
                         Text(filter.title)

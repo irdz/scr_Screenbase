@@ -20,4 +20,12 @@ final class HapticsManager {
         let generator = UIImpactFeedbackGenerator(style: style)
         generator.impactOccurred()
     }
+
+    func lightImpact() {
+        impact(style: .light)
+    }
+
+    func mediumImpact() {
+        impact(style: .medium)
+    }
 }

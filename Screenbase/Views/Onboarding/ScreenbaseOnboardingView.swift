@@ -54,7 +54,7 @@ struct ScreenbaseOnboardingView: View {
 
                 VStack(spacing: 12) {
                     Button(viewModel.primaryButtonTitle) {
-                        HapticsManager.instance.impact(style: .medium)
+                        HapticsManager.instance.mediumImpact()
                         handlePrimaryAction()
                     }
                     .buttonStyle(.screenbasePrimary)

@@ -11,7 +11,7 @@ struct LibraryFABView: View {
 
     var body: some View {
         Button(action: {
-            HapticsManager.instance.impact(style: .medium)
+            HapticsManager.instance.mediumImpact()
             onTap()
         }) {
             Ph.plus.bold
