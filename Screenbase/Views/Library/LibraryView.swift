@@ -10,6 +10,7 @@ struct LibraryView: View {
     @Environment(MetadataManager.self) private var metadataManager
     @Environment(ScreenshotManager.self) private var screenshotManager
     @Environment(PhotosManager.self) private var photosManager
+    @Environment(\.displayScale) private var displayScale
 
     @State private var viewModel: LibraryViewModel?
     @State private var thumbnailLoader: LibraryThumbnailLoader?
@@ -52,7 +53,10 @@ struct LibraryView: View {
                 )
             }
             if thumbnailLoader == nil {
-                thumbnailLoader = LibraryThumbnailLoader(photosManager: photosManager)
+                thumbnailLoader = LibraryThumbnailLoader(
+                    photosManager: photosManager,
+                    scale: displayScale
+                )
             }
         }
         .onChange(of: viewModel?.detailScreenshotId) { _, newValue in
@@ -171,12 +175,10 @@ struct LibraryView: View {
 
             Spacer()
 
-            Button {
+            Button("Assign") {
                 viewModel.presentAssignSheet()
-            } label: {
-                Text("Assign")
-                    .primaryButtonStyle()
             }
+            .buttonStyle(.screenbasePrimary)
             .frame(maxWidth: 160)
         }
         .padding(.horizontal, 16)

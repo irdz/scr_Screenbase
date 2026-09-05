@@ -59,6 +59,14 @@ final class CollectionsViewModel {
         }
     }
 
+    var nameEditorSaveTitle: String {
+        switch nameEditorMode {
+        case .createCollection, .createTag: "Create"
+        case .renameCollection, .renameTag: "Save"
+        case nil: "Save"
+        }
+    }
+
     var canSaveName: Bool {
         !nameDraft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
@@ -106,11 +114,11 @@ final class CollectionsViewModel {
             switch mode {
             case .createCollection:
                 _ = try await metadataManager.createCollection(name: draft)
-            case let .renameCollection(id):
+            case .renameCollection(let id):
                 try await metadataManager.renameCollection(id: id, name: draft)
             case .createTag:
                 _ = try await metadataManager.createTag(name: draft)
-            case let .renameTag(id):
+            case .renameTag(let id):
                 try await metadataManager.renameTag(id: id, name: draft)
             }
             nameEditorMode = nil

@@ -221,7 +221,7 @@ final class LibraryViewModel {
         let screenshotIds = Array(selectedScreenshotIds)
         let collectionIds = Array(selectedAssignCollectionIds)
         let tagIds = Array(selectedAssignTagIds)
-        guard !screenshotIds.isEmpty, (!collectionIds.isEmpty || !tagIds.isEmpty) else { return }
+        guard !screenshotIds.isEmpty, !collectionIds.isEmpty || !tagIds.isEmpty else { return }
 
         try? await metadataManager.assignCollections(collectionIds, toScreenshots: screenshotIds)
         try? await metadataManager.assignTags(tagIds, toScreenshots: screenshotIds)

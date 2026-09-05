@@ -11,7 +11,7 @@ import Testing
 struct CollectionsViewModel_Tests {
     @Test("Create collection via name editor")
     @MainActor
-    func createCollectionViaNameEditor() async throws {
+    func createCollectionViaNameEditor() async {
         // Given
         let metadata = MetadataManager(local: InMemoryLocalMetadataStore(), remote: MockMetadataService())
         let sut = CollectionsViewModel(metadataManager: metadata)
@@ -43,7 +43,7 @@ struct CollectionsViewModel_Tests {
         #expect(metadata.tags.first?.name == "new")
 
         // When
-        sut.confirmDeleteTag(try #require(metadata.tags.first))
+        try sut.confirmDeleteTag(#require(metadata.tags.first))
         await sut.deletePendingTag()
 
         // Then

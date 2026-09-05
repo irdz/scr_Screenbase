@@ -43,22 +43,27 @@ struct CollectionsView: View {
             .padding(.horizontal, ScreenbaseMetrics.edgePadding)
             .padding(.bottom, ScreenbaseMetrics.edgePadding)
         }
-        .alert(
-            viewModel.nameEditorTitle,
+        .sheet(
             isPresented: Binding(
                 get: { viewModel.isNameEditorPresented },
                 set: { viewModel.isNameEditorPresented = $0 }
             )
         ) {
-            TextField("Name", text: Binding(
-                get: { viewModel.nameDraft },
-                set: { viewModel.nameDraft = $0 }
-            ))
-            Button("Save") {
-                Task { await viewModel.saveNameEditor() }
-            }
-            .disabled(!viewModel.canSaveName)
-            Button("Cancel", role: .cancel) {}
+            CollectionNameSheet(
+                title: viewModel.nameEditorTitle,
+                saveTitle: viewModel.nameEditorSaveTitle,
+                name: Binding(
+                    get: { viewModel.nameDraft },
+                    set: { viewModel.nameDraft = $0 }
+                ),
+                canSave: viewModel.canSaveName,
+                onSave: {
+                    Task { await viewModel.saveNameEditor() }
+                },
+                onCancel: {
+                    viewModel.isNameEditorPresented = false
+                }
+            )
         }
         .alert(
             "Delete collection?",
