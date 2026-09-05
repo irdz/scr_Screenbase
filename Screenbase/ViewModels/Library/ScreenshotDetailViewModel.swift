@@ -16,18 +16,24 @@ final class ScreenshotDetailViewModel {
         case missing
     }
 
+    enum MembershipSheetMode: Equatable {
+        case tags
+        case collections
+    }
+
     let screenshotId: String
 
     var image: UIImage?
     var imageState: ImageState = .loading
     var isAnnotationEditorPresented = false
     var annotationDraft = ""
-    var isMembershipSheetPresented = false
+    var membershipSheetMode: MembershipSheetMode?
     var selectedCollectionIds: Set<String> = []
     var selectedTagIds: Set<String> = []
     var membershipNameEditorMode: MembershipNameEditorMode?
     var membershipNameDraft = ""
     var isSharePresented = false
+    var isFullscreenPresented = false
 
     enum MembershipNameEditorMode: Equatable {
         case collection
@@ -54,20 +60,6 @@ final class ScreenshotDetailViewModel {
         metadataManager.screenshots.first { $0.id == screenshotId }
     }
 
-    var assignedCollections: [CollectionRecord] {
-        guard let screenshot else { return [] }
-        return metadataManager.collections
-            .filter { screenshot.collectionIds.contains($0.id) }
-            .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
-    }
-
-    var assignedTags: [TagRecord] {
-        guard let screenshot else { return [] }
-        return metadataManager.tags
-            .filter { screenshot.tagIds.contains($0.id) }
-            .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
-    }
-
     var allCollections: [CollectionRecord] {
         metadataManager.collections.sorted {
             $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
@@ -80,18 +72,31 @@ final class ScreenshotDetailViewModel {
         }
     }
 
-    var annotationDisplayText: String {
-        let text = screenshot?.annotationText?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        return text.isEmpty ? "Add a note…" : text
-    }
-
-    var hasAnnotation: Bool {
-        let text = screenshot?.annotationText?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        return !text.isEmpty
-    }
-
     var canShare: Bool {
         image != nil
+    }
+
+    var canOpenFullscreen: Bool {
+        image != nil
+    }
+
+    var isMembershipSheetPresented: Bool {
+        get { membershipSheetMode != nil }
+        set {
+            if !newValue {
+                membershipSheetMode = nil
+                membershipNameEditorMode = nil
+                membershipNameDraft = ""
+            }
+        }
+    }
+
+    var membershipSheetTitle: String {
+        switch membershipSheetMode {
+        case .tags: "Tags"
+        case .collections: "Collections"
+        case nil: ""
+        }
     }
 
     var isMembershipNameEditorPresented: Bool {
@@ -114,6 +119,22 @@ final class ScreenshotDetailViewModel {
 
     var canSaveMembershipName: Bool {
         !membershipNameDraft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    var isNotesActionActive: Bool {
+        isAnnotationEditorPresented
+    }
+
+    var isTagsActionActive: Bool {
+        membershipSheetMode == .tags
+    }
+
+    var isCollectionsActionActive: Bool {
+        membershipSheetMode == .collections
+    }
+
+    var isShareActionActive: Bool {
+        isSharePresented
     }
 
     func loadImageIfNeeded() async {
@@ -145,12 +166,20 @@ final class ScreenshotDetailViewModel {
         isAnnotationEditorPresented = false
     }
 
-    func presentMembershipSheet() {
+    func presentTagsSheet() {
         selectedCollectionIds = Set(screenshot?.collectionIds ?? [])
         selectedTagIds = Set(screenshot?.tagIds ?? [])
         membershipNameEditorMode = nil
         membershipNameDraft = ""
-        isMembershipSheetPresented = true
+        membershipSheetMode = .tags
+    }
+
+    func presentCollectionsSheet() {
+        selectedCollectionIds = Set(screenshot?.collectionIds ?? [])
+        selectedTagIds = Set(screenshot?.tagIds ?? [])
+        membershipNameEditorMode = nil
+        membershipNameDraft = ""
+        membershipSheetMode = .collections
     }
 
     func toggleMembershipCollection(_ id: String) {
@@ -199,13 +228,24 @@ final class ScreenshotDetailViewModel {
     }
 
     func applyMemberships() async {
-        try? await metadataManager.setCollections(Array(selectedCollectionIds), forScreenshot: screenshotId)
-        try? await metadataManager.setTags(Array(selectedTagIds), forScreenshot: screenshotId)
-        isMembershipSheetPresented = false
+        switch membershipSheetMode {
+        case .tags:
+            try? await metadataManager.setTags(Array(selectedTagIds), forScreenshot: screenshotId)
+        case .collections:
+            try? await metadataManager.setCollections(Array(selectedCollectionIds), forScreenshot: screenshotId)
+        case nil:
+            break
+        }
+        membershipSheetMode = nil
     }
 
     func presentShare() {
         guard canShare else { return }
         isSharePresented = true
+    }
+
+    func presentFullscreen() {
+        guard canOpenFullscreen else { return }
+        isFullscreenPresented = true
     }
 }

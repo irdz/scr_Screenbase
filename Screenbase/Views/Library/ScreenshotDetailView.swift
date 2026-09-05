@@ -26,7 +26,10 @@ struct ScreenshotDetailView: View {
             }
         }
         .screenbaseBackground()
-        .pushedScreen(title: "Detail")
+        .navigationTitle("")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.visible, for: .navigationBar)
+        .toolbarBackground(.hidden, for: .navigationBar)
         .onAppear {
             if viewModel == nil {
                 let screen = UIScreen.main.bounds.size
@@ -54,28 +57,13 @@ struct ScreenshotDetailView: View {
                 .foregroundStyle(ScreenbaseColors.gray)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
-            ScrollView {
-                VStack(alignment: .leading, spacing: ScreenbaseMetrics.spacing * 2) {
-                    imageSection(viewModel: viewModel)
-                    annotationSection(viewModel: viewModel)
-                    membershipSection(viewModel: viewModel)
-                }
-                .padding(.horizontal, ScreenbaseMetrics.edgePadding)
-                .padding(.bottom, ScreenbaseMetrics.edgePadding)
+            VStack(spacing: 0) {
+                imageSection(viewModel: viewModel)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+                actionBar(viewModel: viewModel)
             }
-            .toolbar {
-                ToolbarItem(placement: .primaryAction) {
-                    Button {
-                        viewModel.presentShare()
-                    } label: {
-                        Ph.shareNetwork.bold
-                            .color(viewModel.canShare ? ScreenbaseColors.ink : ScreenbaseColors.gray)
-                            .frame(width: 22, height: 22)
-                    }
-                    .disabled(!viewModel.canShare)
-                    .accessibilityLabel("Share")
-                }
-            }
+            .ignoresSafeArea(edges: .top)
             .sheet(isPresented: Binding(
                 get: { viewModel.isAnnotationEditorPresented },
                 set: { viewModel.isAnnotationEditorPresented = $0 }
@@ -86,41 +74,7 @@ struct ScreenshotDetailView: View {
                 get: { viewModel.isMembershipSheetPresented },
                 set: { viewModel.isMembershipSheetPresented = $0 }
             )) {
-                LibraryAssignSheet(
-                    title: "Organize",
-                    collections: viewModel.allCollections,
-                    tags: viewModel.allTags,
-                    selectedCollectionIds: viewModel.selectedCollectionIds,
-                    selectedTagIds: viewModel.selectedTagIds,
-                    canApply: true,
-                    onToggleCollection: viewModel.toggleMembershipCollection,
-                    onToggleTag: viewModel.toggleMembershipTag,
-                    onCreateCollection: viewModel.presentCreateMembershipCollection,
-                    onCreateTag: viewModel.presentCreateMembershipTag,
-                    onApply: {
-                        Task { await viewModel.applyMemberships() }
-                    },
-                    onCancel: {
-                        viewModel.isMembershipSheetPresented = false
-                    }
-                )
-                .alert(
-                    viewModel.membershipNameEditorTitle,
-                    isPresented: Binding(
-                        get: { viewModel.isMembershipNameEditorPresented },
-                        set: { viewModel.isMembershipNameEditorPresented = $0 }
-                    )
-                ) {
-                    TextField("Name", text: Binding(
-                        get: { viewModel.membershipNameDraft },
-                        set: { viewModel.membershipNameDraft = $0 }
-                    ))
-                    Button("Save") {
-                        Task { await viewModel.saveMembershipNameEditor() }
-                    }
-                    .disabled(!viewModel.canSaveMembershipName)
-                    Button("Cancel", role: .cancel) {}
-                }
+                membershipSheet(viewModel: viewModel)
             }
             .sheet(isPresented: Binding(
                 get: { viewModel.isSharePresented },
@@ -131,6 +85,16 @@ struct ScreenshotDetailView: View {
                         .presentationDetents([.medium, .large])
                 }
             }
+            .fullScreenCover(isPresented: Binding(
+                get: { viewModel.isFullscreenPresented },
+                set: { viewModel.isFullscreenPresented = $0 }
+            )) {
+                if let image = viewModel.image {
+                    ScreenshotFullscreenView(image: image) {
+                        viewModel.isFullscreenPresented = false
+                    }
+                }
+            }
         }
     }
 
@@ -139,29 +103,39 @@ struct ScreenshotDetailView: View {
         Group {
             switch viewModel.imageState {
             case .loading:
-                RoundedRectangle(cornerRadius: ScreenbaseMetrics.radiusCard, style: .continuous)
-                    .fill(ScreenbaseColors.lightGray)
-                    .aspectRatio(3 / 4, contentMode: .fit)
-                    .overlay { ProgressView() }
+                ZStack {
+                    ScreenbaseColors.lightGray
+                    ProgressView()
+                }
             case .missing:
                 missingAssetPlaceholder
             case .loaded:
                 if let image = viewModel.image {
-                    Image(uiImage: image)
-                        .resizable()
-                        .scaledToFit()
-                        .clipShape(RoundedRectangle(cornerRadius: ScreenbaseMetrics.radiusCard, style: .continuous))
+                    Color.black
+                        .overlay {
+                            Image(uiImage: image)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        }
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            viewModel.presentFullscreen()
+                        }
+                        .accessibilityAddTraits(.isButton)
+                        .accessibilityLabel("Screenshot")
+                        .accessibilityHint("Shows full screen")
                 } else {
                     missingAssetPlaceholder
                 }
             }
         }
-        .frame(maxWidth: .infinity)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private var missingAssetPlaceholder: some View {
         VStack(spacing: 12) {
-            Ph.imageBroken.bold
+            Ph.imageBroken.regular
                 .color(ScreenbaseColors.gray)
                 .frame(width: 40, height: 40)
             Text("Photo unavailable")
@@ -171,82 +145,135 @@ struct ScreenshotDetailView: View {
                 .font(.system(size: 14))
                 .foregroundStyle(ScreenbaseColors.gray)
                 .multilineTextAlignment(.center)
-                .padding(.horizontal, 12)
+                .padding(.horizontal, 24)
         }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 48)
-        .background(
-            RoundedRectangle(cornerRadius: ScreenbaseMetrics.radiusCard, style: .continuous)
-                .fill(ScreenbaseColors.lightGray)
-        )
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(ScreenbaseColors.lightGray)
     }
 
-    private func annotationSection(viewModel: ScreenshotDetailViewModel) -> some View {
-        VStack(alignment: .leading, spacing: ScreenbaseMetrics.spacing) {
-            HStack {
-                Text("Note")
-                    .font(ScreenbaseFonts.display(size: 18, weight: .semibold))
-                    .foregroundStyle(ScreenbaseColors.ink)
-                Spacer()
-                Button("Edit") {
-                    viewModel.presentAnnotationEditor()
-                }
-                .font(ScreenbaseFonts.display(size: 15, weight: .semibold))
-                .foregroundStyle(ScreenbaseColors.ink)
-            }
-
-            Button {
+    private func actionBar(viewModel: ScreenshotDetailViewModel) -> some View {
+        HStack(spacing: 12) {
+            ScreenshotDetailActionButton(
+                icon: .noteBlank,
+                title: "Notes",
+                isActive: viewModel.isNotesActionActive
+            ) {
                 viewModel.presentAnnotationEditor()
-            } label: {
-                Text(viewModel.annotationDisplayText)
-                    .font(ScreenbaseFonts.display(size: 16, weight: .regular))
-                    .foregroundStyle(viewModel.hasAnnotation ? ScreenbaseColors.ink : ScreenbaseColors.gray)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(14)
-                    .background(
-                        RoundedRectangle(cornerRadius: ScreenbaseMetrics.radiusCard, style: .continuous)
-                            .fill(ScreenbaseColors.lightGray)
-                    )
-            }
-            .buttonStyle(.plain)
-        }
-    }
-
-    private func membershipSection(viewModel: ScreenshotDetailViewModel) -> some View {
-        VStack(alignment: .leading, spacing: ScreenbaseMetrics.spacing) {
-            HStack {
-                Text("Organize")
-                    .font(ScreenbaseFonts.display(size: 18, weight: .semibold))
-                    .foregroundStyle(ScreenbaseColors.ink)
-                Spacer()
-                Button("Manage") {
-                    viewModel.presentMembershipSheet()
-                }
-                .font(ScreenbaseFonts.display(size: 15, weight: .semibold))
-                .foregroundStyle(ScreenbaseColors.ink)
             }
 
-            if viewModel.assignedCollections.isEmpty, viewModel.assignedTags.isEmpty {
-                Text("No collections or tags yet.")
-                    .font(.system(size: 14))
-                    .foregroundStyle(ScreenbaseColors.gray)
-            } else {
-                if !viewModel.assignedCollections.isEmpty {
-                    chipBlock(title: "Collections", names: viewModel.assignedCollections.map(\.name))
-                }
-                if !viewModel.assignedTags.isEmpty {
-                    chipBlock(title: "Tags", names: viewModel.assignedTags.map(\.name))
-                }
+            ScreenshotDetailActionButton(
+                icon: .tagSimple,
+                title: "Tags",
+                isActive: viewModel.isTagsActionActive
+            ) {
+                viewModel.presentTagsSheet()
+            }
+
+            ScreenshotDetailActionButton(
+                icon: .folderSimple,
+                title: "Collections",
+                isActive: viewModel.isCollectionsActionActive
+            ) {
+                viewModel.presentCollectionsSheet()
+            }
+
+            ScreenshotDetailActionButton(
+                icon: .export,
+                title: "Share",
+                isActive: viewModel.isShareActionActive,
+                isEnabled: viewModel.canShare
+            ) {
+                viewModel.presentShare()
             }
         }
+        .padding(.horizontal, ScreenbaseMetrics.edgePadding)
+        .padding(.top, 16)
+        .padding(.bottom, 12)
+        .frame(maxWidth: .infinity)
+        .background(ScreenbaseColors.background)
     }
 
-    private func chipBlock(title: String, names: [String]) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(title)
-                .font(.system(size: 13, weight: .medium))
-                .foregroundStyle(ScreenbaseColors.gray)
-            FlowChipRow(names: names)
+    @ViewBuilder
+    private func membershipSheet(viewModel: ScreenshotDetailViewModel) -> some View {
+        switch viewModel.membershipSheetMode {
+        case .tags:
+            LibraryAssignSheet(
+                title: "Tags",
+                collections: [],
+                tags: viewModel.allTags,
+                selectedCollectionIds: [],
+                selectedTagIds: viewModel.selectedTagIds,
+                showsCollections: false,
+                showsTags: true,
+                canApply: true,
+                onToggleCollection: { _ in },
+                onToggleTag: viewModel.toggleMembershipTag,
+                onCreateCollection: {},
+                onCreateTag: viewModel.presentCreateMembershipTag,
+                onApply: {
+                    Task { await viewModel.applyMemberships() }
+                },
+                onCancel: {
+                    viewModel.isMembershipSheetPresented = false
+                }
+            )
+            .alert(
+                viewModel.membershipNameEditorTitle,
+                isPresented: Binding(
+                    get: { viewModel.isMembershipNameEditorPresented },
+                    set: { viewModel.isMembershipNameEditorPresented = $0 }
+                )
+            ) {
+                TextField("Name", text: Binding(
+                    get: { viewModel.membershipNameDraft },
+                    set: { viewModel.membershipNameDraft = $0 }
+                ))
+                Button("Save") {
+                    Task { await viewModel.saveMembershipNameEditor() }
+                }
+                .disabled(!viewModel.canSaveMembershipName)
+                Button("Cancel", role: .cancel) {}
+            }
+        case .collections:
+            LibraryAssignSheet(
+                title: "Collections",
+                collections: viewModel.allCollections,
+                tags: [],
+                selectedCollectionIds: viewModel.selectedCollectionIds,
+                selectedTagIds: [],
+                showsCollections: true,
+                showsTags: false,
+                canApply: true,
+                onToggleCollection: viewModel.toggleMembershipCollection,
+                onToggleTag: { _ in },
+                onCreateCollection: viewModel.presentCreateMembershipCollection,
+                onCreateTag: {},
+                onApply: {
+                    Task { await viewModel.applyMemberships() }
+                },
+                onCancel: {
+                    viewModel.isMembershipSheetPresented = false
+                }
+            )
+            .alert(
+                viewModel.membershipNameEditorTitle,
+                isPresented: Binding(
+                    get: { viewModel.isMembershipNameEditorPresented },
+                    set: { viewModel.isMembershipNameEditorPresented = $0 }
+                )
+            ) {
+                TextField("Name", text: Binding(
+                    get: { viewModel.membershipNameDraft },
+                    set: { viewModel.membershipNameDraft = $0 }
+                ))
+                Button("Save") {
+                    Task { await viewModel.saveMembershipNameEditor() }
+                }
+                .disabled(!viewModel.canSaveMembershipName)
+                Button("Cancel", role: .cancel) {}
+            }
+        case nil:
+            EmptyView()
         }
     }
 
@@ -258,7 +285,7 @@ struct ScreenshotDetailView: View {
             ))
             .font(ScreenbaseFonts.display(size: 17, weight: .regular))
             .padding(ScreenbaseMetrics.edgePadding)
-            .navigationTitle("Note")
+            .navigationTitle("Notes")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -277,71 +304,71 @@ struct ScreenshotDetailView: View {
     }
 }
 
-/// Simple wrapping chip row for collection/tag names.
-private struct FlowChipRow: View {
-    var names: [String]
+/// Icon + label action control matching the product’s squircle chip style.
+private struct ScreenshotDetailActionButton: View {
+    var icon: Ph
+    var title: String
+    var isActive: Bool = false
+    var isEnabled: Bool = true
+    var action: () -> Void
 
     var body: some View {
-        FlexibleChipLayout(spacing: 8) {
-            ForEach(names, id: \.self) { name in
-                Text(name)
-                    .font(ScreenbaseFonts.display(size: 14, weight: .semibold))
-                    .foregroundStyle(ScreenbaseColors.ink)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 8)
+        Button(action: action) {
+            VStack(spacing: 8) {
+                icon.regular
+                    .color(isEnabled ? ScreenbaseColors.ink : ScreenbaseColors.gray)
+                    .frame(width: 28, height: 28)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 56)
                     .background(
-                        Capsule(style: .continuous)
+                        RoundedRectangle(cornerRadius: 16, style: .continuous)
                             .fill(ScreenbaseColors.lightGray)
                     )
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                            .strokeBorder(ScreenbaseColors.ink, lineWidth: isActive ? 1.5 : 0)
+                    }
+
+                Text(title)
+                    .font(ScreenbaseFonts.display(size: 13, weight: isActive ? .bold : .semibold))
+                    .foregroundStyle(isEnabled ? ScreenbaseColors.ink : ScreenbaseColors.gray)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.85)
             }
+            .frame(maxWidth: .infinity)
         }
+        .buttonStyle(.plain)
+        .disabled(!isEnabled)
+        .accessibilityLabel(title)
     }
 }
 
-/// Lightweight wrap layout so chips flow without a third-party dependency.
-private struct FlexibleChipLayout: Layout {
-    var spacing: CGFloat = 8
+private struct ScreenshotFullscreenView: View {
+    var image: UIImage
+    var onDismiss: () -> Void
 
-    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
-        let maxWidth = proposal.width ?? .infinity
-        var x: CGFloat = 0
-        var y: CGFloat = 0
-        var rowHeight: CGFloat = 0
-        var height: CGFloat = 0
+    var body: some View {
+        ZStack(alignment: .topTrailing) {
+            Color.black.ignoresSafeArea()
 
-        for subview in subviews {
-            let size = subview.sizeThatFits(.unspecified)
-            if x + size.width > maxWidth, x > 0 {
-                x = 0
-                y += rowHeight + spacing
-                rowHeight = 0
+            Image(uiImage: image)
+                .resizable()
+                .scaledToFit()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .ignoresSafeArea()
+
+            Button(action: onDismiss) {
+                Image(systemName: "xmark")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .frame(width: 36, height: 36)
+                    .background(Circle().fill(Color.white.opacity(0.2)))
             }
-            rowHeight = max(rowHeight, size.height)
-            x += size.width + spacing
-            height = max(height, y + rowHeight)
+            .padding(.trailing, 20)
+            .padding(.top, 12)
+            .accessibilityLabel("Close")
         }
-        return CGSize(width: maxWidth.isFinite ? maxWidth : x, height: height)
-    }
-
-    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
-        var x = bounds.minX
-        var y = bounds.minY
-        var rowHeight: CGFloat = 0
-
-        for subview in subviews {
-            let size = subview.sizeThatFits(.unspecified)
-            if x + size.width > bounds.maxX, x > bounds.minX {
-                x = bounds.minX
-                y += rowHeight + spacing
-                rowHeight = 0
-            }
-            subview.place(
-                at: CGPoint(x: x, y: y),
-                proposal: ProposedViewSize(size)
-            )
-            x += size.width + spacing
-            rowHeight = max(rowHeight, size.height)
-        }
+        .statusBarHidden(true)
     }
 }
 

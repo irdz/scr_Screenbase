@@ -60,14 +60,13 @@ struct ScreenshotDetailViewModel_Tests {
         #expect(sut.isAnnotationEditorPresented == false)
     }
 
-    @Test("Applying memberships replaces collections and tags")
+    @Test("Applying collections membership replaces collection set")
     @MainActor
-    func applyingMembershipsReplacesSets() async throws {
+    func applyingCollectionsMembershipReplacesSet() async throws {
         // Given
         let metadata = MetadataManager(local: InMemoryLocalMetadataStore(), remote: MockMetadataService())
         let keep = try await metadata.createCollection(name: "Keep")
         let drop = try await metadata.createCollection(name: "Drop")
-        let tag = try await metadata.createTag(name: "bug")
         try await metadata.upsertScreenshot(
             ScreenshotRecord(
                 id: "shot",
@@ -82,10 +81,9 @@ struct ScreenshotDetailViewModel_Tests {
             photosManager: PhotosManager(service: MockPhotosService(status: .authorized)),
             imageTargetSize: CGSize(width: 100, height: 100)
         )
-        sut.presentMembershipSheet()
+        sut.presentCollectionsSheet()
         sut.toggleMembershipCollection(drop.id)
         sut.toggleMembershipCollection(keep.id)
-        sut.toggleMembershipTag(tag.id)
 
         // When
         await sut.applyMemberships()
@@ -93,6 +91,37 @@ struct ScreenshotDetailViewModel_Tests {
         // Then
         let record = try #require(metadata.screenshots.first)
         #expect(Set(record.collectionIds) == [keep.id])
+        #expect(sut.isMembershipSheetPresented == false)
+    }
+
+    @Test("Applying tags membership replaces tag set")
+    @MainActor
+    func applyingTagsMembershipReplacesSet() async throws {
+        // Given
+        let metadata = MetadataManager(local: InMemoryLocalMetadataStore(), remote: MockMetadataService())
+        let tag = try await metadata.createTag(name: "bug")
+        try await metadata.upsertScreenshot(
+            ScreenshotRecord(
+                id: "shot",
+                assetLocalIdentifier: "shot",
+                collectionIds: [],
+                tagIds: []
+            )
+        )
+        let sut = ScreenshotDetailViewModel(
+            screenshotId: "shot",
+            metadataManager: metadata,
+            photosManager: PhotosManager(service: MockPhotosService(status: .authorized)),
+            imageTargetSize: CGSize(width: 100, height: 100)
+        )
+        sut.presentTagsSheet()
+        sut.toggleMembershipTag(tag.id)
+
+        // When
+        await sut.applyMemberships()
+
+        // Then
+        let record = try #require(metadata.screenshots.first)
         #expect(Set(record.tagIds) == [tag.id])
         #expect(sut.isMembershipSheetPresented == false)
     }
