@@ -17,7 +17,7 @@ struct CollectionTileView: View {
             Color.clear
                 .aspectRatio(1, contentMode: .fit)
                 .overlay {
-                    ZStack(alignment: .bottomLeading) {
+                    ZStack(alignment: .bottom) {
                         Group {
                             if let previewImage {
                                 Image(uiImage: previewImage)
@@ -30,19 +30,6 @@ struct CollectionTileView: View {
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .clipped()
 
-                        LinearGradient(
-                            colors: [
-                                .clear,
-                                Color.black.opacity(0.45),
-                                Color.black.opacity(0.78)
-                            ],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                        .frame(height: 100)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
-                        .allowsHitTesting(false)
-
                         VStack(alignment: .leading, spacing: 4) {
                             Text(title)
                                 .font(ScreenbaseFonts.display(size: 16, weight: .semibold))
@@ -50,9 +37,23 @@ struct CollectionTileView: View {
                                 .lineLimit(2)
                             Text(subtitle)
                                 .font(.system(size: 13))
-                                .foregroundStyle(.white.opacity(0.85))
+                                .foregroundStyle(.white.opacity(0.9))
                         }
-                        .padding(14)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 14)
+                        .padding(.top, 28)
+                        .padding(.bottom, 14)
+                        .background(
+                            LinearGradient(
+                                colors: [
+                                    .clear,
+                                    Color.black.opacity(0.55),
+                                    Color.black.opacity(0.82)
+                                ],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
                     }
                 }
                 .clipShape(RoundedRectangle(cornerRadius: ScreenbaseMetrics.radiusCard, style: .continuous))
@@ -63,8 +64,14 @@ struct CollectionTileView: View {
     }
 }
 
-#Preview {
+#Preview("With count") {
     CollectionTileView(title: "Onboarding", subtitle: "12 screenshots")
+        .padding()
+        .frame(width: 180)
+}
+
+#Preview("Empty collection") {
+    CollectionTileView(title: "Ideas", subtitle: "0 screenshots")
         .padding()
         .frame(width: 180)
 }
