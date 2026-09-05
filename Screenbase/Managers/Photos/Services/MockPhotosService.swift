@@ -14,19 +14,25 @@ final class MockPhotosService: PhotosService {
     var requestDelayNanoseconds: UInt64
     var scanDelayNanoseconds: UInt64
     var thumbnailImages: [String: UIImage]
+    var fullImages: [String: UIImage]
+    var missingAssetIdentifiers: Set<String>
 
     init(
         status: PhotosAuthorizationStatus = .notDetermined,
         screenshotCount: Int = 12,
         requestDelayNanoseconds: UInt64 = 0,
         scanDelayNanoseconds: UInt64 = 0,
-        thumbnailImages: [String: UIImage] = [:]
+        thumbnailImages: [String: UIImage] = [:],
+        fullImages: [String: UIImage] = [:],
+        missingAssetIdentifiers: Set<String> = []
     ) {
         authorizationStatus = status
         screenshotCountValue = screenshotCount
         self.requestDelayNanoseconds = requestDelayNanoseconds
         self.scanDelayNanoseconds = scanDelayNanoseconds
         self.thumbnailImages = thumbnailImages
+        self.fullImages = fullImages
+        self.missingAssetIdentifiers = missingAssetIdentifiers
     }
 
     func requestAuthorization() async -> PhotosAuthorizationStatus {
@@ -51,6 +57,13 @@ final class MockPhotosService: PhotosService {
 
     func thumbnailImage(forAssetLocalIdentifier localIdentifier: String, targetSize _: CGSize) async -> UIImage? {
         guard authorizationStatus == .authorized || authorizationStatus == .limited else { return nil }
+        guard !missingAssetIdentifiers.contains(localIdentifier) else { return nil }
         return thumbnailImages[localIdentifier]
+    }
+
+    func fullImage(forAssetLocalIdentifier localIdentifier: String, targetSize _: CGSize) async -> UIImage? {
+        guard authorizationStatus == .authorized || authorizationStatus == .limited else { return nil }
+        guard !missingAssetIdentifiers.contains(localIdentifier) else { return nil }
+        return fullImages[localIdentifier] ?? thumbnailImages[localIdentifier]
     }
 }

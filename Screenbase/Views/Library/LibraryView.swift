@@ -36,13 +36,7 @@ struct LibraryView: View {
             .screenbaseBackground()
             .toolbar(.hidden, for: .navigationBar)
             .navigationDestination(for: String.self) { screenshotId in
-                if let screenshot = metadataManager.screenshots.first(where: { $0.id == screenshotId }) {
-                    ScreenshotDetailPlaceholderView(screenshot: screenshot)
-                } else {
-                    Text("Screenshot unavailable")
-                        .foregroundStyle(ScreenbaseColors.gray)
-                        .pushedScreen(title: "Detail")
-                }
+                ScreenshotDetailView(screenshotId: screenshotId)
             }
         }
         .onAppear {

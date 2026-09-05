@@ -7,6 +7,7 @@ import PhosphorSwift
 import SwiftUI
 
 struct LibraryAssignSheet: View {
+    var title: String = "Assign"
     var collections: [CollectionRecord] = []
     var tags: [TagRecord] = []
     var selectedCollectionIds: Set<String> = []
@@ -63,7 +64,7 @@ struct LibraryAssignSheet: View {
                 }
             }
             .screenbaseListStyle()
-            .navigationTitle("Assign")
+            .navigationTitle(title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
