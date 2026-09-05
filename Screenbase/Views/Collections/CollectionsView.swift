@@ -14,6 +14,7 @@ struct CollectionsView: View {
     @State private var viewModel: CollectionsViewModel?
     @State private var thumbnailLoader: LibraryThumbnailLoader?
     @State private var navigationPath = NavigationPath()
+    @State private var tabBarVisibility: Visibility = .visible
 
     private let columns = [
         GridItem(.flexible(), spacing: ScreenbaseMetrics.collectionGridSpacing),
@@ -31,6 +32,7 @@ struct CollectionsView: View {
                 }
             }
             .screenTitle("Collections")
+            .animatedTabBarVisibility(tabBarVisibility)
             .navigationDestination(for: CollectionsDestination.self) { destination in
                 switch destination {
                 case .collection(let collectionId):
@@ -38,11 +40,15 @@ struct CollectionsView: View {
                         navigationPath.append(CollectionsDestination.screenshot(screenshotId))
                     }
                 case .screenshot(let screenshotId):
-                    ScreenshotDetailView(screenshotId: screenshotId)
+                    ScreenshotDetailView(
+                        screenshotId: screenshotId,
+                        tabBarVisibility: $tabBarVisibility
+                    )
                 }
             }
         }
         .onAppear {
+            TabBarVisibilityAnimation.set($tabBarVisibility, to: .visible)
             if viewModel == nil {
                 viewModel = CollectionsViewModel(metadataManager: metadataManager)
             }
