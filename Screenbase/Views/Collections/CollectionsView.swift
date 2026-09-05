@@ -13,6 +13,7 @@ struct CollectionsView: View {
 
     @State private var viewModel: CollectionsViewModel?
     @State private var thumbnailLoader: LibraryThumbnailLoader?
+    @State private var navigationPath = NavigationPath()
 
     private let columns = [
         GridItem(.flexible(), spacing: ScreenbaseMetrics.collectionGridSpacing),
@@ -20,7 +21,7 @@ struct CollectionsView: View {
     ]
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $navigationPath) {
             Group {
                 if let viewModel, let thumbnailLoader {
                     content(viewModel: viewModel, thumbnailLoader: thumbnailLoader)
@@ -30,6 +31,16 @@ struct CollectionsView: View {
                 }
             }
             .screenTitle("Collections")
+            .navigationDestination(for: CollectionsDestination.self) { destination in
+                switch destination {
+                case .collection(let collectionId):
+                    CollectionDetailView(collectionId: collectionId) { screenshotId in
+                        navigationPath.append(CollectionsDestination.screenshot(screenshotId))
+                    }
+                case .screenshot(let screenshotId):
+                    ScreenshotDetailView(screenshotId: screenshotId)
+                }
+            }
         }
         .onAppear {
             if viewModel == nil {
@@ -130,7 +141,10 @@ struct CollectionsView: View {
                     CollectionTileView(
                         title: collection.name,
                         subtitle: screenshotLabel(viewModel.screenshotCount(for: collection.id)),
-                        previewImage: previewAsset.flatMap { thumbnailLoader.image(for: $0) }
+                        previewImage: previewAsset.flatMap { thumbnailLoader.image(for: $0) },
+                        onTap: {
+                            navigationPath.append(CollectionsDestination.collection(collection.id))
+                        }
                     )
                     .frame(maxWidth: .infinity)
                     .contextMenu {
