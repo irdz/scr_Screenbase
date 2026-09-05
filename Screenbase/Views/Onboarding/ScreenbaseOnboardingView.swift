@@ -5,7 +5,6 @@
 
 import PhosphorSwift
 import SwiftUI
-import UIKit
 
 struct ScreenbaseOnboardingView: View {
     @Bindable var appState: AppState
@@ -15,11 +14,16 @@ struct ScreenbaseOnboardingView: View {
     init(
         appState: AppState,
         photosManager: PhotosManager,
+        screenshotManager: ScreenshotManager? = nil,
         startStep: OnboardingViewModel.Step = .welcome
     ) {
         self.appState = appState
         _viewModel = State(
-            initialValue: OnboardingViewModel(photosManager: photosManager, step: startStep)
+            initialValue: OnboardingViewModel(
+                photosManager: photosManager,
+                screenshotManager: screenshotManager,
+                step: startStep
+            )
         )
     }
 
@@ -49,22 +53,18 @@ struct ScreenbaseOnboardingView: View {
                 }
 
                 VStack(spacing: 12) {
-                    Button {
-                        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                    Button(viewModel.primaryButtonTitle) {
+                        HapticsManager.instance.mediumImpact()
                         handlePrimaryAction()
-                    } label: {
-                        Text(viewModel.primaryButtonTitle)
-                            .primaryButtonStyle()
                     }
+                    .buttonStyle(.screenbasePrimary)
                     .disabled(viewModel.step == .initialScan && !viewModel.canContinueFromScan)
-                    .opacity(viewModel.step == .initialScan && !viewModel.canContinueFromScan ? 0.6 : 1)
 
                     if viewModel.step == .photosPermission {
                         Button(OnboardingCopy.PhotosPermission.notNowCTA) {
                             viewModel.skipPhotosPermission()
                         }
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundStyle(ScreenbaseColors.gray)
+                        .buttonStyle(.screenbaseTertiary)
                     }
                 }
                 .padding(.horizontal, ScreenbaseMetrics.edgePadding)

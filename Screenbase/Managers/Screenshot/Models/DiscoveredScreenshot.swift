@@ -7,7 +7,9 @@ import Foundation
 
 /// A Photos asset discovered as a screenshot (`PHAssetMediaSubtype.photoScreenshot`).
 struct DiscoveredScreenshot: Equatable, Identifiable, Sendable, Hashable {
-    var id: String { assetLocalIdentifier }
+    var id: String {
+        assetLocalIdentifier
+    }
 
     /// Photos framework local identifier (`PHAsset.localIdentifier`).
     let assetLocalIdentifier: String
@@ -27,6 +29,6 @@ struct DiscoveredScreenshot: Equatable, Identifiable, Sendable, Hashable {
         DiscoveredScreenshot(
             assetLocalIdentifier: "MOCK/ASSET-3",
             creationDate: Date(timeIntervalSince1970: 1_700_000_200)
-        ),
+        )
     ]
 }

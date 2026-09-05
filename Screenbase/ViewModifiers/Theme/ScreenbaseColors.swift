@@ -5,14 +5,28 @@
 
 import SwiftUI
 
+/// Design tokens from PRD §24, backed by asset catalog colors with light/dark variants.
+/// Asset names use a `Scr` prefix so they don't collide with system color names.
 enum ScreenbaseColors {
-    static let background = Color.white
-    static let ink = Color.black
-    static let lightGray = Color(red: 242 / 255, green: 244 / 255, blue: 247 / 255)
-    static let gray = Color(red: 115 / 255, green: 115 / 255, blue: 115 / 255)
-    static let navInactive = Color(red: 142 / 255, green: 142 / 255, blue: 147 / 255)
-    static let elevated = Color(red: 245 / 255, green: 245 / 255, blue: 245 / 255)
-    static let line = Color(red: 237 / 255, green: 237 / 255, blue: 237 / 255)
-    static let red = Color(red: 209 / 255, green: 74 / 255, blue: 66 / 255)
-    static let green = Color(red: 47 / 255, green: 143 / 255, blue: 87 / 255)
+    // MARK: Product chrome
+
+    static let background = Color("ScrBackground")
+    static let ink = Color("ScrInk")
+    static let lightGray = Color("ScrLightGray")
+    static let gray = Color("ScrGray")
+    static let navInactive = Color("ScrNavInactive")
+    static let elevated = Color("ScrElevated")
+    static let line = Color("ScrLine")
+    static let lineCool = Color("ScrLineCool")
+    static let red = Color("ScrRed")
+    static let green = Color("ScrGreen")
+
+    // MARK: Brand / marketing (icon & marketing surfaces)
+
+    static let navy = Color("ScrNavy")
+    static let navyDeep = Color("ScrNavyDeep")
+    static let navyPanel = Color("ScrNavyPanel")
+    static let sky = Color("ScrSky")
+    static let skyLight = Color("ScrSkyLight")
+    static let amber = Color("ScrAmber")
 }

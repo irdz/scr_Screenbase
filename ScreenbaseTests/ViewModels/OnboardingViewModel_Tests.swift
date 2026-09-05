@@ -1,3 +1,4 @@
+import Foundation
 @testable import Screenbase
 import Testing
 
@@ -49,6 +50,48 @@ struct OnboardingViewModel_Tests {
         #expect(sut.screenshotCount == 21)
         #expect(sut.isScanning == false)
         #expect(sut.canContinueFromScan)
+    }
+
+    @Test("Authorized scan starts screenshot discovery")
+    @MainActor
+    func startInitialScanStartsDiscovery() async {
+        let photos = PhotosManager(service: MockPhotosService(status: .authorized, screenshotCount: 3))
+        let screenshotService = MockScreenshotService(
+            screenshots: [
+                DiscoveredScreenshot(assetLocalIdentifier: "a", creationDate: Date())
+            ]
+        )
+        let screenshots = ScreenshotManager(
+            service: screenshotService,
+            index: InMemoryScreenshotIndex()
+        )
+        let sut = OnboardingViewModel(
+            photosManager: photos,
+            screenshotManager: screenshots,
+            step: .initialScan
+        )
+
+        await sut.startInitialScanIfNeeded()
+
+        #expect(sut.screenshotCount == 3)
+        #expect(!screenshots.discoveredScreenshots.isEmpty)
+    }
+
+    @Test("Photos request alone does not start discovery")
+    @MainActor
+    func requestPhotosAccessDoesNotStartDiscovery() async {
+        let photos = PhotosManager(service: MockPhotosService(status: .notDetermined, screenshotCount: 3))
+        let screenshots = ScreenshotManager(
+            service: MockScreenshotService(),
+            index: InMemoryScreenshotIndex()
+        )
+        let sut = OnboardingViewModel(photosManager: photos, screenshotManager: screenshots)
+
+        await sut.requestPhotosAccess()
+
+        #expect(sut.step == .initialScan)
+        #expect(screenshots.discoveredScreenshots.isEmpty)
+        #expect(screenshots.isObserving == false)
     }
 
     @Test("Denied photos skips scan")

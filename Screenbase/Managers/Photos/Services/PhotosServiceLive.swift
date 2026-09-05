@@ -5,6 +5,7 @@
 
 import Foundation
 import Photos
+import UIKit
 
 struct PhotosServiceLive: PhotosService {
     var authorizationStatus: PhotosAuthorizationStatus {
@@ -31,6 +32,57 @@ struct PhotosServiceLive: PhotosService {
             let result = PHAsset.fetchAssets(with: .image, options: options)
             return result.count
         }.value
+    }
+
+    func thumbnailImage(forAssetLocalIdentifier localIdentifier: String, targetSize: CGSize) async -> UIImage? {
+        await requestImage(
+            forAssetLocalIdentifier: localIdentifier,
+            targetSize: targetSize,
+            contentMode: .aspectFill,
+            resizeMode: .fast
+        )
+    }
+
+    func fullImage(forAssetLocalIdentifier localIdentifier: String, targetSize: CGSize) async -> UIImage? {
+        await requestImage(
+            forAssetLocalIdentifier: localIdentifier,
+            targetSize: targetSize,
+            contentMode: .aspectFit,
+            resizeMode: .exact
+        )
+    }
+
+    private func requestImage(
+        forAssetLocalIdentifier localIdentifier: String,
+        targetSize: CGSize,
+        contentMode: PHImageContentMode,
+        resizeMode: PHImageRequestOptionsResizeMode
+    ) async -> UIImage? {
+        let status = authorizationStatus
+        guard status == .authorized || status == .limited else { return nil }
+
+        return await withCheckedContinuation { continuation in
+            let assets = PHAsset.fetchAssets(withLocalIdentifiers: [localIdentifier], options: nil)
+            guard let asset = assets.firstObject else {
+                continuation.resume(returning: nil)
+                return
+            }
+
+            let options = PHImageRequestOptions()
+            options.deliveryMode = .highQualityFormat
+            options.resizeMode = resizeMode
+            options.isNetworkAccessAllowed = true
+            options.isSynchronous = false
+
+            PHImageManager.default().requestImage(
+                for: asset,
+                targetSize: targetSize,
+                contentMode: contentMode,
+                options: options
+            ) { image, _ in
+                continuation.resume(returning: image)
+            }
+        }
     }
 }
 
