@@ -15,6 +15,7 @@ struct LibraryView: View {
     @State private var viewModel: LibraryViewModel?
     @State private var thumbnailLoader: LibraryThumbnailLoader?
     @State private var navigationPath = NavigationPath()
+    @State private var tabBarVisibility: Visibility = .visible
 
     private let columns = [
         GridItem(.flexible(), spacing: ScreenbaseMetrics.collectionGridSpacing),
@@ -35,11 +36,16 @@ struct LibraryView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .screenbaseBackground()
             .toolbar(.hidden, for: .navigationBar)
+            .animatedTabBarVisibility(tabBarVisibility)
             .navigationDestination(for: String.self) { screenshotId in
-                ScreenshotDetailView(screenshotId: screenshotId)
+                ScreenshotDetailView(
+                    screenshotId: screenshotId,
+                    tabBarVisibility: $tabBarVisibility
+                )
             }
         }
         .onAppear {
+            TabBarVisibilityAnimation.set($tabBarVisibility, to: .visible)
             if viewModel == nil {
                 viewModel = LibraryViewModel(
                     metadataManager: metadataManager,

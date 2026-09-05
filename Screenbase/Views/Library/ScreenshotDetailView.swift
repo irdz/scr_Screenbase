@@ -13,8 +13,14 @@ struct ScreenshotDetailView: View {
     @Environment(\.displayScale) private var displayScale
 
     let screenshotId: String
+    @Binding var tabBarVisibility: Visibility
 
     @State private var viewModel: ScreenshotDetailViewModel?
+
+    init(screenshotId: String, tabBarVisibility: Binding<Visibility> = .constant(.hidden)) {
+        self.screenshotId = screenshotId
+        _tabBarVisibility = tabBarVisibility
+    }
 
     var body: some View {
         Group {
@@ -29,9 +35,9 @@ struct ScreenshotDetailView: View {
         .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.visible, for: .navigationBar)
-        .toolbar(.hidden, for: .tabBar)
         .toolbarBackground(.hidden, for: .navigationBar)
         .onAppear {
+            TabBarVisibilityAnimation.set($tabBarVisibility, to: .hidden)
             if viewModel == nil {
                 let screen = UIScreen.main.bounds.size
                 viewModel = ScreenshotDetailViewModel(
@@ -44,6 +50,9 @@ struct ScreenshotDetailView: View {
                     )
                 )
             }
+        }
+        .onDisappear {
+            TabBarVisibilityAnimation.set($tabBarVisibility, to: .visible)
         }
         .task(id: screenshotId) {
             await viewModel?.loadImageIfNeeded()
