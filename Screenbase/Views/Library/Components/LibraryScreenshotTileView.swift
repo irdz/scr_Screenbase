@@ -3,11 +3,13 @@
 //  Screenbase
 //
 
+import PhosphorSwift
 import SwiftUI
 import UIKit
 
 struct LibraryScreenshotTileView: View {
     var assetLocalIdentifier: String
+    var isSelecting: Bool = false
     var isSelected: Bool = false
     var image: UIImage?
     var showsPlaceholder: Bool = false
@@ -18,9 +20,11 @@ struct LibraryScreenshotTileView: View {
             tileContent
                 .aspectRatio(1, contentMode: .fit)
                 .clipShape(RoundedRectangle(cornerRadius: ScreenbaseMetrics.radiusThumbnail, style: .continuous))
-                .overlay {
-                    RoundedRectangle(cornerRadius: ScreenbaseMetrics.radiusThumbnail, style: .continuous)
-                        .strokeBorder(ScreenbaseColors.ink, lineWidth: isSelected ? 2 : 0)
+                .overlay(alignment: .bottomTrailing) {
+                    if isSelecting {
+                        selectionBadge
+                            .padding(8)
+                    }
                 }
         }
         .buttonStyle(.plain)
@@ -45,14 +49,42 @@ struct LibraryScreenshotTileView: View {
                 }
         }
     }
+
+    private var selectionBadge: some View {
+        ZStack {
+            if isSelected {
+                Circle()
+                    .fill(ScreenbaseColors.ink)
+                Ph.check.bold
+                    .color(ScreenbaseColors.background)
+                    .frame(width: 12, height: 12)
+            } else {
+                Circle()
+                    .fill(ScreenbaseColors.background.opacity(0.92))
+                Circle()
+                    .strokeBorder(ScreenbaseColors.ink, lineWidth: 1.5)
+            }
+        }
+        .frame(width: 24, height: 24)
+        .accessibilityHidden(true)
+    }
 }
 
-#Preview("Selected") {
-    LibraryScreenshotTileView(
-        assetLocalIdentifier: "mock",
-        isSelected: true,
-        showsPlaceholder: true
-    )
-    .frame(width: 120)
+#Preview("Selecting") {
+    HStack(spacing: 12) {
+        LibraryScreenshotTileView(
+            assetLocalIdentifier: "mock",
+            isSelecting: true,
+            isSelected: false,
+            showsPlaceholder: true
+        )
+        LibraryScreenshotTileView(
+            assetLocalIdentifier: "mock-selected",
+            isSelecting: true,
+            isSelected: true,
+            showsPlaceholder: true
+        )
+    }
+    .frame(height: 120)
     .padding()
 }

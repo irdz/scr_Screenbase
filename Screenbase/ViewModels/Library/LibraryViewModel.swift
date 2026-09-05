@@ -153,6 +153,7 @@ final class LibraryViewModel {
             } else {
                 selectedScreenshotIds.insert(screenshotId)
             }
+            HapticsManager.instance.impact(style: .light)
         } else {
             detailScreenshotId = screenshotId
         }

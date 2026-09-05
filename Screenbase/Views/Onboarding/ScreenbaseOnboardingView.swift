@@ -5,7 +5,6 @@
 
 import PhosphorSwift
 import SwiftUI
-import UIKit
 
 struct ScreenbaseOnboardingView: View {
     @Bindable var appState: AppState
@@ -55,7 +54,7 @@ struct ScreenbaseOnboardingView: View {
 
                 VStack(spacing: 12) {
                     Button(viewModel.primaryButtonTitle) {
-                        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                        HapticsManager.instance.impact(style: .medium)
                         handlePrimaryAction()
                     }
                     .buttonStyle(.screenbasePrimary)

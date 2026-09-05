@@ -157,6 +157,7 @@ struct LibraryView: View {
             Spacer()
 
             Button(viewModel.isSelecting ? "Done" : "Select") {
+                HapticsManager.instance.impact(style: .light)
                 viewModel.toggleSelecting()
             }
             .font(ScreenbaseFonts.display(size: 16, weight: .semibold))
@@ -176,6 +177,7 @@ struct LibraryView: View {
             Spacer()
 
             Button("Assign") {
+                HapticsManager.instance.impact(style: .medium)
                 viewModel.presentAssignSheet()
             }
             .buttonStyle(.screenbasePrimary)
@@ -232,6 +234,7 @@ struct LibraryView: View {
                     } else if let record = metadataManager.screenshots.first(where: { $0.id == id }) {
                         LibraryScreenshotTileView(
                             assetLocalIdentifier: record.assetLocalIdentifier,
+                            isSelecting: viewModel.isSelecting,
                             isSelected: viewModel.isSelected(record.id),
                             image: thumbnailLoader.image(for: record.assetLocalIdentifier)
                         ) {
