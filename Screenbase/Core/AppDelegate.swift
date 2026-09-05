@@ -47,6 +47,7 @@ struct AppDependencies {
     let userManager: UserManager
     let photosManager: PhotosManager
     let purchaseManager: PurchaseManager
+    let metadataManager: MetadataManager
     let screenshotManager: ScreenshotManager
 
     init(
@@ -54,40 +55,52 @@ struct AppDependencies {
         userManager: UserManager,
         photosManager: PhotosManager,
         purchaseManager: PurchaseManager,
+        metadataManager: MetadataManager,
         screenshotManager: ScreenshotManager
     ) {
         self.authManager = authManager
         self.userManager = userManager
         self.photosManager = photosManager
         self.purchaseManager = purchaseManager
+        self.metadataManager = metadataManager
         self.screenshotManager = screenshotManager
     }
 
     init(configuration: BuildConfiguration) {
         switch configuration {
         case .dev, .prod:
+            let metadataManager = MetadataManager(
+                local: FileLocalMetadataStore(),
+                remote: FirestoreMetadataService()
+            )
             self.init(
                 authManager: AuthManager(service: FirebaseAuthServiceLive()),
                 userManager: UserManager(services: ProductionUserServices()),
                 photosManager: PhotosManager(service: PhotosServiceLive()),
                 purchaseManager: PurchaseManager(service: RevenueCatPurchaseService()),
+                metadataManager: metadataManager,
                 screenshotManager: ScreenshotManager(
                     service: PhotosScreenshotService(),
-                    index: InMemoryScreenshotIndex()
+                    index: metadataManager
                 )
             )
         }
     }
 
     static var mock: AppDependencies {
-        AppDependencies(
+        let metadataManager = MetadataManager(
+            local: InMemoryLocalMetadataStore(),
+            remote: MockMetadataService()
+        )
+        return AppDependencies(
             authManager: AuthManager(service: AuthServiceMock()),
             userManager: UserManager(services: MockUserServices()),
             photosManager: PhotosManager(service: MockPhotosService()),
             purchaseManager: PurchaseManager(service: MockPurchaseService()),
+            metadataManager: metadataManager,
             screenshotManager: ScreenshotManager(
                 service: MockScreenshotService(),
-                index: InMemoryScreenshotIndex()
+                index: metadataManager
             )
         )
     }

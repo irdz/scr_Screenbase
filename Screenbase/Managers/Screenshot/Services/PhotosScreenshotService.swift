@@ -55,19 +55,17 @@ private final class PhotoLibraryChangeObserver: NSObject, PHPhotoLibraryChangeOb
     private var continuation: AsyncStream<Void>.Continuation?
     private var isRegistered = false
 
-    lazy var events: AsyncStream<Void> = {
-        AsyncStream { continuation in
-            self.lock.lock()
-            self.continuation = continuation
-            self.lock.unlock()
+    lazy var events: AsyncStream<Void> = AsyncStream { continuation in
+        self.lock.lock()
+        self.continuation = continuation
+        self.lock.unlock()
 
-            continuation.onTermination = { [weak self] _ in
-                self?.unregister()
-            }
-
-            self.registerIfNeeded()
+        continuation.onTermination = { [weak self] _ in
+            self?.unregister()
         }
-    }()
+
+        self.registerIfNeeded()
+    }
 
     func photoLibraryDidChange(_: PHChange) {
         lock.lock()
