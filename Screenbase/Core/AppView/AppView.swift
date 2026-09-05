@@ -20,15 +20,27 @@ struct AppView: View {
         AppViewBuilder(showMainApp: appState.showMainApp) {
             MainTabView()
         } onboardingView: {
-            ScreenbaseOnboardingView(appState: appState, photosManager: photosManager)
+            ScreenbaseOnboardingView(
+                appState: appState,
+                photosManager: photosManager,
+                screenshotManager: screenshotManager
+            )
         }
         .environment(appState)
         .preferredColorScheme(appearance.colorScheme)
         .task {
             await purchaseManager.bootstrap()
             await checkUserStatus()
-            await screenshotManager.startDiscovery()
         }
+        .task(id: appState.showMainApp) {
+            await startScreenshotDiscoveryIfAuthorized()
+        }
+    }
+
+    private func startScreenshotDiscoveryIfAuthorized() async {
+        let status = photosManager.authorizationStatus
+        guard status == .authorized || status == .limited else { return }
+        await screenshotManager.startDiscovery()
     }
 
     private func checkUserStatus() async {

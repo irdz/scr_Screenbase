@@ -3,8 +3,10 @@
 //  Screenbase
 //
 
+import CoreGraphics
 import Foundation
 import Observation
+import UIKit
 
 @MainActor
 @Observable
@@ -25,5 +27,9 @@ final class PhotosManager {
 
     func screenshotCount() async throws -> Int {
         try await service.screenshotCount()
+    }
+
+    func thumbnailImage(forAssetLocalIdentifier localIdentifier: String, targetSize: CGSize) async -> UIImage? {
+        await service.thumbnailImage(forAssetLocalIdentifier: localIdentifier, targetSize: targetSize)
     }
 }
