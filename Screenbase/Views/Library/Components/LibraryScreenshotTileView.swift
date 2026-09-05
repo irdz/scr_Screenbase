@@ -20,6 +20,10 @@ struct LibraryScreenshotTileView: View {
         tileContent
             .aspectRatio(1, contentMode: .fit)
             .clipShape(RoundedRectangle(cornerRadius: ScreenbaseMetrics.radiusThumbnail, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: ScreenbaseMetrics.radiusThumbnail, style: .continuous)
+                    .strokeBorder(ScreenbaseColors.ink, lineWidth: isSelected ? 2 : 0)
+            }
             .overlay(alignment: .bottomTrailing) {
                 if isSelecting {
                     selectionBadge
