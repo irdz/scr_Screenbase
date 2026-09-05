@@ -47,17 +47,20 @@ struct AppDependencies {
     let userManager: UserManager
     let photosManager: PhotosManager
     let purchaseManager: PurchaseManager
+    let screenshotManager: ScreenshotManager
 
     init(
         authManager: AuthManager,
         userManager: UserManager,
         photosManager: PhotosManager,
-        purchaseManager: PurchaseManager
+        purchaseManager: PurchaseManager,
+        screenshotManager: ScreenshotManager
     ) {
         self.authManager = authManager
         self.userManager = userManager
         self.photosManager = photosManager
         self.purchaseManager = purchaseManager
+        self.screenshotManager = screenshotManager
     }
 
     init(configuration: BuildConfiguration) {
@@ -67,7 +70,11 @@ struct AppDependencies {
                 authManager: AuthManager(service: FirebaseAuthServiceLive()),
                 userManager: UserManager(services: ProductionUserServices()),
                 photosManager: PhotosManager(service: PhotosServiceLive()),
-                purchaseManager: PurchaseManager(service: RevenueCatPurchaseService())
+                purchaseManager: PurchaseManager(service: RevenueCatPurchaseService()),
+                screenshotManager: ScreenshotManager(
+                    service: PhotosScreenshotService(),
+                    index: InMemoryScreenshotIndex()
+                )
             )
         }
     }
@@ -77,7 +84,11 @@ struct AppDependencies {
             authManager: AuthManager(service: AuthServiceMock()),
             userManager: UserManager(services: MockUserServices()),
             photosManager: PhotosManager(service: MockPhotosService()),
-            purchaseManager: PurchaseManager(service: MockPurchaseService())
+            purchaseManager: PurchaseManager(service: MockPurchaseService()),
+            screenshotManager: ScreenshotManager(
+                service: MockScreenshotService(),
+                index: InMemoryScreenshotIndex()
+            )
         )
     }
 }
